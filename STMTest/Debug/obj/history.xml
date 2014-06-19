@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -Wall -ffunction-sections -g -O0 -c -DSTM32F103C8 -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -I..\..\..\workspace\STMTest -I..\..\..\workspace\STMTest\cmsis -I..\..\..\workspace\STMTest\FRT_Library\FreeRTOS\Source\portable\GCC -I..\..\..\workspace\STMTest\FRT_Library\FreeRTOS\Source\portable -I..\..\..\workspace\STMTest\cmsis_boot -I..\..\..\workspace\STMTest\stm_lib -I..\..\..\workspace -I..\..\..\workspace\STMTest\FRT_Library\FreeRTOS\Source -I..\..\..\workspace\STMTest\FRT_Library\FreeRTOS\Source\portable\GCC\ARM_CM3 -I..\..\..\workspace\STMTest\FRT_Library\FreeRTOS -I..\..\.. -I..\..\..\workspace\STMTest\stm_lib\inc -I..\..\..\workspace\STMTest\FRT_Library\FreeRTOS\Source\include">
+      <target file="syscalls.o" lastModified="146b4583db5">
+         <source file="..\..\..\syscalls\syscalls.c" lastModified="146b452fa0a"/>
+      </target>
+      <target file="queue.o" lastModified="146b4583f2c">
+         <source file="..\..\..\FRT_Library\FreeRTOS\Source\queue.c" lastModified="146b454e2f4"/>
+      </target>
+      <target file="test.o" lastModified="146b45bf896">
+         <source file="..\..\..\..\..\..\..\Users\pyro\Documents\test.cpp" lastModified="146b45bea8d"/>
+      </target>
+      <target file="stm32f10x_tim.o" lastModified="146b4582d3a">
+         <source file="..\..\..\stm_lib\src\stm32f10x_tim.c" lastModified="146b4544c25"/>
+      </target>
+      <target file="port.o" lastModified="146b4584093">
+         <source file="..\..\..\FRT_Library\FreeRTOS\Source\portable\GCC\ARM_CM3\port.c" lastModified="146b454e2e5"/>
+      </target>
+      <target file="heap_2.o" lastModified="146b4584333">
+         <source file="..\..\..\FRT_Library\FreeRTOS\Source\portable\MemMang\heap_2.c" lastModified="146b454e2e5"/>
+      </target>
+      <target file="list.o" lastModified="146b4583c2e">
+         <source file="..\..\..\FRT_Library\FreeRTOS\Source\list.c" lastModified="146b454e2d5"/>
+      </target>
+      <target file="printf.o" lastModified="146b45836cf">
+         <source file="..\..\..\stdio\printf.c" lastModified="146b4532c8d"/>
+      </target>
+      <target file="common.o" lastModified="146b4583086">
+         <source file="..\..\..\FRT_Library\FreeRTOS\Source\portable\GCC\ARM_CM3\common.c" lastModified="146b454e2e5"/>
+      </target>
+      <target file="system_stm32f10x.o" lastModified="146b4582f0f">
+         <source file="..\..\..\cmsis_boot\system_stm32f10x.c" lastModified="146b453f466"/>
+      </target>
+      <target file="croutine.o" lastModified="146b45841cc">
+         <source file="..\..\..\FRT_Library\FreeRTOS\Source\croutine.c" lastModified="146b454e2c5"/>
+      </target>
+      <target file="main.o" lastModified="146b458350a">
+         <source file="..\..\..\main.c" lastModified="146b4522ba4"/>
+      </target>
+      <target file="stm32f10x_gpio.o" lastModified="146b45833a3">
+         <source file="..\..\..\stm_lib\src\stm32f10x_gpio.c" lastModified="146b454a427"/>
+      </target>
+      <target file="stm32f10x_rcc.o" lastModified="146b45838d3">
+         <source file="..\..\..\stm_lib\src\stm32f10x_rcc.c" lastModified="146b4544c73"/>
+      </target>
+      <target file="startup_stm32f10x_md.o" lastModified="146b45831ed">
+         <source file="..\..\..\cmsis_boot\startup\startup_stm32f10x_md.c" lastModified="146b453f447"/>
+      </target>
+      <target file="tasks.o" lastModified="146b4583ab7">
+         <source file="..\..\..\FRT_Library\FreeRTOS\Source\tasks.c" lastModified="146b454e2f4"/>
+      </target>
+   </processor>
+</history>
