@@ -15,12 +15,10 @@
  *            priority is Privileged, and the Stack is set to Main.
  *******************************************************************************
  */
- 
+#include <stdint.h>
 
 /*----------Stack Configuration-----------------------------------------------*/  
-#define STACK_SIZE       0x00000100      /*!< The Stack size suggest using even number     */
-__attribute__ ((section(".co_stack")))
-unsigned long pulStack[STACK_SIZE];      
+extern uint32_t _estack;
 
 
 /*----------Macro definition--------------------------------------------------*/  
@@ -98,6 +96,7 @@ extern void _eram;               /*!< End address for ram                     */
 /*----------Function prototypes-----------------------------------------------*/  
 extern int main(void);           /*!< The entry point for the application.    */
 extern void SystemInit(void);    /*!< Setup the microcontroller system(CMSIS) */
+extern int __libc_init_array(void);
 void Default_Reset_Handler(void);   /*!< Default reset handler                */
 static void Default_Handler(void);  /*!< Default exception handler            */
 

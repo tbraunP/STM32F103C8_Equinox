@@ -786,6 +786,30 @@ src/main.c.s:
 	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/main.c.s
 .PHONY : src/main.c.s
 
+src/stm32f10x_it.o: src/stm32f10x_it.c.o
+.PHONY : src/stm32f10x_it.o
+
+# target to build an object file
+src/stm32f10x_it.c.o:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/stm32f10x_it.c.o
+.PHONY : src/stm32f10x_it.c.o
+
+src/stm32f10x_it.i: src/stm32f10x_it.c.i
+.PHONY : src/stm32f10x_it.i
+
+# target to preprocess a source file
+src/stm32f10x_it.c.i:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/stm32f10x_it.c.i
+.PHONY : src/stm32f10x_it.c.i
+
+src/stm32f10x_it.s: src/stm32f10x_it.c.s
+.PHONY : src/stm32f10x_it.s
+
+# target to generate assembly for a file
+src/stm32f10x_it.c.s:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/stm32f10x_it.c.s
+.PHONY : src/stm32f10x_it.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -879,6 +903,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/stm32f10x_it.o"
+	@echo "... src/stm32f10x_it.i"
+	@echo "... src/stm32f10x_it.s"
 .PHONY : help
 
 
