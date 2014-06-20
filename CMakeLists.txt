@@ -28,7 +28,7 @@ SET(CMAKE_RANLIB arm-unknown-eabi-ranlib)
 
 # Set compiler and linker options
 SET(LIBS_FLAG "-DHSE_VALUE=8000000 -DSTM32F103C8 -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -g") 
-SET(COMMON_FLAGS "-O0 -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -fsingle-precision-constant -Wall ${LIBS_FLAG} -Wunused-value")
+SET(COMMON_FLAGS "-O0 -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -fsingle-precision-constant -Wall ${LIBS_FLAG} -mfloat-abi=soft -Wunused-value")
 SET(CMAKE_CXX_FLAGS "${COMMON_FLAGS}  -fno-rtti  -fno-exceptions -std=gnu++0x")
 SET(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99")
 
@@ -52,6 +52,7 @@ SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g")
 include_directories("lib/CMSIS")
 include_directories("lib/STM32F10x_StdPeriph_Driver/inc")
 include_directories("lib/syscalls")
+include_directories("lib/STM32_USB-FS-Device_Driver/inc")
 
 # CMSIS src
 AUX_SOURCE_DIRECTORY("lib/CMSIS/" CMSISSRCS)
@@ -59,11 +60,15 @@ AUX_SOURCE_DIRECTORY("lib/CMSIS/" CMSISSRCS)
 # PERIP
 AUX_SOURCE_DIRECTORY("lib/STM32F10x_StdPeriph_Driver/src/" PERIPHSRCS)
 
+# USB FS
+#AUX_SOURCE_DIRECTORY("lib/STM32_USB-FS-Device_Driver/src/" USBFSSRCS)
+
+
 # SYSCALLS
 AUX_SOURCE_DIRECTORY("lib/syscalls/" SYSCALLSRCS)
 
 
-SET(LIBSRCS ${CMSISSRCS} ${PERIPHSRCS} ${SYSCALLSRCS})
+SET(LIBSRCS ${CMSISSRCS} ${PERIPHSRCS} ${SYSCALLSRCS} ${USBFSSRCS})
 
 # freertos include files
 #include_directories("lib/FreeRTOS/FreeRTOS/Source/include")

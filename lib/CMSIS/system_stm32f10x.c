@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f10x.c
   * @author  MCD Application Team
-  * @version V3.5.0
-  * @date    11-March-2011
+  * @version V3.6.1
+  * @date    09-March-2012
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Source File.
   * 
   * 1.  This file provides two functions and one global variable to be called from 
@@ -39,14 +39,20 @@
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
   ******************************************************************************
   */
 
@@ -294,7 +300,7 @@ void SystemInit (void)
   *             in voltage and temperature.   
   *    
   *         (**) HSE_VALUE is a constant defined in stm32f1xx.h file (default value
-  *              8 MHz or 25 MHz, depedning on the product used), user has to ensure
+  *              8 MHz or 25 MHz, depending on the product used), user has to ensure
   *              that HSE_VALUE is same as the real frequency of the crystal used.
   *              Otherwise, this function may have wrong result.
   *                
@@ -1091,4 +1097,4 @@ static void SetSysClockTo72(void)
 /**
   * @}
   */    
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

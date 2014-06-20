@@ -42,10 +42,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/pyro/Projekte/STM32F103C8
+CMAKE_SOURCE_DIR = /home/pyro/Projekte/STM32F103/STM32F103C8
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/pyro/Projekte/STM32F103C8
+CMAKE_BINARY_DIR = /home/pyro/Projekte/STM32F103/STM32F103C8
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pyro/Projekte/STM32F103C8/CMakeFiles /home/pyro/Projekte/STM32F103C8/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pyro/Projekte/STM32F103/STM32F103C8/CMakeFiles /home/pyro/Projekte/STM32F103/STM32F103C8/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pyro/Projekte/STM32F103C8/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pyro/Projekte/STM32F103/STM32F103C8/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -113,30 +113,6 @@ stm32f103Demo.elf: cmake_check_build_system
 stm32f103Demo.elf/fast:
 	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/build
 .PHONY : stm32f103Demo.elf/fast
-
-lib/CMSIS/core_cm3.o: lib/CMSIS/core_cm3.c.o
-.PHONY : lib/CMSIS/core_cm3.o
-
-# target to build an object file
-lib/CMSIS/core_cm3.c.o:
-	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/lib/CMSIS/core_cm3.c.o
-.PHONY : lib/CMSIS/core_cm3.c.o
-
-lib/CMSIS/core_cm3.i: lib/CMSIS/core_cm3.c.i
-.PHONY : lib/CMSIS/core_cm3.i
-
-# target to preprocess a source file
-lib/CMSIS/core_cm3.c.i:
-	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/lib/CMSIS/core_cm3.c.i
-.PHONY : lib/CMSIS/core_cm3.c.i
-
-lib/CMSIS/core_cm3.s: lib/CMSIS/core_cm3.c.s
-.PHONY : lib/CMSIS/core_cm3.s
-
-# target to generate assembly for a file
-lib/CMSIS/core_cm3.c.s:
-	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/lib/CMSIS/core_cm3.c.s
-.PHONY : lib/CMSIS/core_cm3.c.s
 
 lib/CMSIS/startup_stm32f10x_md.o: lib/CMSIS/startup_stm32f10x_md.c.o
 .PHONY : lib/CMSIS/startup_stm32f10x_md.o
@@ -819,9 +795,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... stm32f103Demo.elf"
-	@echo "... lib/CMSIS/core_cm3.o"
-	@echo "... lib/CMSIS/core_cm3.i"
-	@echo "... lib/CMSIS/core_cm3.s"
 	@echo "... lib/CMSIS/startup_stm32f10x_md.o"
 	@echo "... lib/CMSIS/startup_stm32f10x_md.i"
 	@echo "... lib/CMSIS/startup_stm32f10x_md.s"
