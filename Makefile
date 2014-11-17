@@ -738,6 +738,30 @@ lib/syscalls/syscalls.c.s:
 	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/lib/syscalls/syscalls.c.s
 .PHONY : lib/syscalls/syscalls.c.s
 
+src/dcf77.o: src/dcf77.c.o
+.PHONY : src/dcf77.o
+
+# target to build an object file
+src/dcf77.c.o:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/dcf77.c.o
+.PHONY : src/dcf77.c.o
+
+src/dcf77.i: src/dcf77.c.i
+.PHONY : src/dcf77.i
+
+# target to preprocess a source file
+src/dcf77.c.i:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/dcf77.c.i
+.PHONY : src/dcf77.c.i
+
+src/dcf77.s: src/dcf77.c.s
+.PHONY : src/dcf77.s
+
+# target to generate assembly for a file
+src/dcf77.c.s:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/dcf77.c.s
+.PHONY : src/dcf77.c.s
+
 src/main.o: src/main.c.o
 .PHONY : src/main.o
 
@@ -897,6 +921,9 @@ help:
 	@echo "... lib/syscalls/syscalls.o"
 	@echo "... lib/syscalls/syscalls.i"
 	@echo "... lib/syscalls/syscalls.s"
+	@echo "... src/dcf77.o"
+	@echo "... src/dcf77.i"
+	@echo "... src/dcf77.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

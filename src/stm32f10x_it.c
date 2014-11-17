@@ -157,12 +157,6 @@ void PendSV_Handler(void)
 }*/
 
 
-void EXTI0_IRQHandler(void){
-    static int counter = 0;
-    ++counter;
-    EXTI_ClearITPendingBit(EXTI_Line0);
-}
-
 /**
   * @}
   */
