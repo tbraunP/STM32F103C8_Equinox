@@ -786,6 +786,30 @@ src/stm32f10x_it.c.s:
 	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/stm32f10x_it.c.s
 .PHONY : src/stm32f10x_it.c.s
 
+src/systick.o: src/systick.c.o
+.PHONY : src/systick.o
+
+# target to build an object file
+src/systick.c.o:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/systick.c.o
+.PHONY : src/systick.c.o
+
+src/systick.i: src/systick.c.i
+.PHONY : src/systick.i
+
+# target to preprocess a source file
+src/systick.c.i:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/systick.c.i
+.PHONY : src/systick.c.i
+
+src/systick.s: src/systick.c.s
+.PHONY : src/systick.s
+
+# target to generate assembly for a file
+src/systick.c.s:
+	$(MAKE) -f CMakeFiles/stm32f103Demo.elf.dir/build.make CMakeFiles/stm32f103Demo.elf.dir/src/systick.c.s
+.PHONY : src/systick.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -879,6 +903,9 @@ help:
 	@echo "... src/stm32f10x_it.o"
 	@echo "... src/stm32f10x_it.i"
 	@echo "... src/stm32f10x_it.s"
+	@echo "... src/systick.o"
+	@echo "... src/systick.i"
+	@echo "... src/systick.s"
 .PHONY : help
 
 

@@ -136,9 +136,9 @@ void PendSV_Handler(void)
   * @param  None
   * @retval None
   */
-void SysTick_Handler(void)
-{
-}
+//void SysTick_Handler(void)
+//{
+//}
 
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */
@@ -155,6 +155,13 @@ void SysTick_Handler(void)
 /*void PPP_IRQHandler(void)
 {
 }*/
+
+
+void EXTI0_IRQHandler(void){
+    static int counter = 0;
+    ++counter;
+    EXTI_ClearITPendingBit(EXTI_Line0);
+}
 
 /**
   * @}
