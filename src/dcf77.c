@@ -36,6 +36,8 @@ static void EXTI0_Config()
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
+    // reset interrupt
+    EXTI_ClearITPendingBit(EXTI_Line0);
     NVIC_ClearPendingIRQ(EXTI0_IRQn);
     NVIC_Init(&NVIC_InitStructure);
 }
