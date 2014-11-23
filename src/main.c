@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "hw/uart.h"
 
@@ -24,13 +25,21 @@ int main(void)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
   
+    // run uart
+    UART_init();
+    const char str[] = "STM32F103 says hello\n\0";
+    uint16_t len  = (uint16_t) strlen(str);
+
     while(1)
     {
       GPIO_SetBits(GPIOA, GPIO_Pin_0);
       for (int i = 0; i< 4000;i++);
       GPIO_ResetBits(GPIOA, GPIO_Pin_0);
       for (int i = 0; i< 4000;i++);
+
+
+      UART_Send((uint8_t*) str, len);
     }
 
-    UART_init();
+
 }
