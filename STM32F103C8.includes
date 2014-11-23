@@ -1,0 +1,5 @@
+inc
+lib
+lib/CMSIS
+lib/STM32_USB-FS-Device_Driver/inc
+lib/STM32F10x_StdPeriph_Driver/inc
