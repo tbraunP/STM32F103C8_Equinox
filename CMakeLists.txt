@@ -82,9 +82,10 @@ include_directories("src")
 
 # add source files from folder
 AUX_SOURCE_DIRECTORY("src/" SRCS)
+AUX_SOURCE_DIRECTORY("src/hw" SRCSHW)
 
 
-SET(SRCS ${SRCS} ${LIBSRCS})
+SET(SRCS ${SRCS} ${SRCSHW} ${LIBSRCS})
 
 # define target
 add_executable(${TARGET}.elf ${SRCS})

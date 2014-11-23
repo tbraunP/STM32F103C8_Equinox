@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "hw/uart.h"
+
 static GPIO_InitTypeDef GPIO_InitStructure;
 
 int main(void)
@@ -29,4 +31,6 @@ int main(void)
       GPIO_ResetBits(GPIOA, GPIO_Pin_0);
       for (int i = 0; i< 4000;i++);
     }
+
+    UART_init();
 }

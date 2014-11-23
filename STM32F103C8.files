@@ -81,3 +81,11 @@ lib/syscalls/syscalls.c
 lib/FreeRTOSConfig.h
 src/main.c
 src/stm32f10x_it.c
+src/main.c
+src/stm32f10x_it.c
+src/main.c
+src/stm32f10x_it.c
+src/hw/uart.c
+inc/stm32f10x_conf.h
+inc/stm32f10x_it.h
+inc/hw/uart.h
