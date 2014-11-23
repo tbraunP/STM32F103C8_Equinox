@@ -6,35 +6,33 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "hw/uart.h"
 
 #include "dcf77.h"
 #include "systick.h"
 
-static GPIO_InitTypeDef GPIO_InitStructure;
 
 int main(void)
 {
-
-    /* GPIOD Periph clock enable */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-
-    /* Configure pins in output pushpull mode */
-    GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-
     // Enable systick
     SysTick_init();
+
+    // run uart
+    UART_init();
+
     DFC77_init();
+
+    // send welcome message
+    const char str[] = "Welcome to STM32F103 DCF77\n\0";
+    uint16_t len  = (uint16_t) strlen(str);
+    UART_Send((uint8_t*) str, len);
 
     while(1)
     {
-        GPIO_SetBits(GPIOA, GPIO_Pin_0);
-        for (int i = 0; i< 4000;i++);
-        GPIO_ResetBits(GPIOA, GPIO_Pin_0);
-        for (int i = 0; i< 4000;i++);
+
     }
+
+
 }
