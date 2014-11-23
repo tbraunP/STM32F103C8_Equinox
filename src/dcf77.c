@@ -99,11 +99,6 @@ void EXTI0_IRQHandler(void){
         lastEdge = TIM2->CNT;
         //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
     }else{
-        int duration = ((uint32_t) TIM2->CNT) - lastEdge;
-        int i = 0;
-        //snprintf((char*) str,200, "F_DCF Duration %d\n", i);
-        //UART_Send(str, strlen((char*)str));
-
         // reset timer and restart
         TIM_Cmd(TIM2, DISABLE);
         TIM_DeInit(TIM2);
@@ -114,6 +109,16 @@ void EXTI0_IRQHandler(void){
         NVIC_ClearPendingIRQ(TIM2_IRQn);
 
         TIM_Cmd(TIM2, ENABLE);
+
+        // no decide if 1 or 0 bit has been received
+
+
+        uint32_t duration = ((uint32_t) TIM2->CNT) - lastEdge;
+        int i = 0;
+        //snprintf((char*) str,200, "F_DCF Duration %d\n", i);
+        //UART_Send(str, strlen((char*)str));
+
+
     }
 
     EXTI_ClearITPendingBit(EXTI_Line0);
