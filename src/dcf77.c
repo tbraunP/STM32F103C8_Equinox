@@ -1,9 +1,15 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "dcf77.h"
 
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
 #include "hw/uart.h"
 
+static uint8_t str[200];
+
+static TIM_TimeBaseInitTypeDef timerConfig;
 volatile int seconds = 0;
 
 static void EXTI0_Config()
@@ -11,7 +17,7 @@ static void EXTI0_Config()
     EXTI_InitTypeDef   EXTI_InitStructure;
     GPIO_InitTypeDef   GPIO_InitStructure;
     NVIC_InitTypeDef   NVIC_InitStructure;
-    TIM_TimeBaseInitTypeDef timerConfig;
+
 
     /* Alternative functions */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
@@ -43,7 +49,7 @@ static void EXTI0_Config()
     // reset interrupt
     EXTI_ClearITPendingBit(EXTI_Line0);
     NVIC_ClearPendingIRQ(EXTI0_IRQn);
-    //NVIC_Init(&NVIC_InitStructure);
+    NVIC_Init(&NVIC_InitStructure);
 
 
     // now we need a timer to decide if we received a bit or not
@@ -54,7 +60,7 @@ static void EXTI0_Config()
     /* Compute the prescaler value for 10 KHz -> 10000 * 10 KHz = 1 s */
     uint16_t prescaler = (uint16_t) (SystemCoreClock / 10000) - 1;
     /* Time base configuration */
-    timerConfig.TIM_Period = (10000 - 1);
+    timerConfig.TIM_Period = (11500);
     timerConfig.TIM_Prescaler = prescaler;
     timerConfig.TIM_ClockDivision = 0;
     timerConfig.TIM_CounterMode = TIM_CounterMode_Up;
@@ -85,13 +91,29 @@ void DFC77_init(){
 
 void EXTI0_IRQHandler(void){
     static int counter = 0;
+    static uint32_t lastEdge =0;
     ++counter;
 
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
-        UART_Send((const uint8_t*)"R_DCF\n\0", 6);
+        lastEdge = TIM2->CNT;
+        //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
     }else{
-        UART_Send((const uint8_t*)"F_DCF\n\0", 6);
+        int duration = ((uint32_t) TIM2->CNT) - lastEdge;
+        int i = 0;
+        //snprintf((char*) str,200, "F_DCF Duration %d\n", i);
+        //UART_Send(str, strlen((char*)str));
+
+        // reset timer and restart
+        TIM_Cmd(TIM2, DISABLE);
+        TIM_DeInit(TIM2);
+
+        TIM_TimeBaseInit(TIM2, &timerConfig);
+        TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+        NVIC_ClearPendingIRQ(TIM2_IRQn);
+
+        TIM_Cmd(TIM2, ENABLE);
     }
 
     EXTI_ClearITPendingBit(EXTI_Line0);
