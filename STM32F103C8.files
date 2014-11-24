@@ -89,3 +89,5 @@ src/hw/uart.c
 inc/stm32f10x_conf.h
 inc/stm32f10x_it.h
 inc/hw/uart.h
+src/util/itoa.c
+inc/util/itoa.h
