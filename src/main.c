@@ -29,8 +29,17 @@ int main(void)
     uint16_t len  = (uint16_t) strlen(str);
     UART_Send((uint8_t*) str, len);
 
+
+
     while(1)
     {
-        ;
+        volatile int* tmp = malloc(100*sizeof(int));
+        for(int i=0;i<100;i++){
+            if(tmp[i]>=0)
+                tmp[i]=i;
+            else
+                tmp[i]=i+1;
+        }
+        free(tmp);
     }
 }

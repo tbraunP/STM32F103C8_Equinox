@@ -6,6 +6,18 @@
  extern "C" {
 #endif
 
+struct DCF77_Time_t{
+ volatile uint8_t ss;	//Globale Variable für Sekunden
+ volatile uint8_t mm;	//Globale Variable für Minuten
+ volatile uint8_t hh;	//Globale Variable für Stunden
+ volatile uint8_t day;	//Globale Variable für den Tag
+ volatile uint8_t mon;	//Globale Variable für den Monat
+ volatile uint16_t year;	//Globale Variable für den Jahr
+};
+
+extern volatile struct DCF77_Time_t dcf;
+
+
 void DFC77_init();
 
 

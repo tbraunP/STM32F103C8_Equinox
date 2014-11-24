@@ -7,3 +7,4 @@ lib/STM32F10x_StdPeriph_Driver/inc
 src
 inc/hw
 src/hw
+src/util
