@@ -8,3 +8,4 @@ src
 inc/hw
 src/hw
 src/util
+inc/util

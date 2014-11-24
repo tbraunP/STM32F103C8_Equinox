@@ -97,3 +97,5 @@ src/main.c
 src/stm32f10x_it.c
 src/systick.c
 inc/dcf_internal.h
+src/util/itoa.c
+inc/util/itoa.h
