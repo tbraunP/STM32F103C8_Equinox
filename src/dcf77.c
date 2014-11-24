@@ -7,6 +7,7 @@
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
 #include "hw/uart.h"
+#include "util/itoa.h"
 
 
 
@@ -110,8 +111,6 @@ void DFC77_init(){
 
 // some helper functions
 static void Add_one_Second();
-static char* itoa(int i, char b[]);
-
 
 
 // Edge recognized
@@ -124,37 +123,64 @@ void EXTI0_IRQHandler(void){
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
         lastEdge = TIM2->CNT;
+        Add_one_Second();
         //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
-    }else{
+    } else {
+        // store duration
         uint32_t duration = ((uint32_t) TIM2->CNT) - lastEdge;
 
-        // reset timer and restart
-        TIM_Cmd(TIM2, DISABLE);
-        TIM_DeInit(TIM2);
+        // reset second overflow timer and restart
+        {
+            TIM_Cmd(TIM2, DISABLE);
+            TIM_DeInit(TIM2);
 
-        TIM_TimeBaseInit(TIM2, &timerConfig);
-        TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-        NVIC_ClearPendingIRQ(TIM2_IRQn);
+            TIM_TimeBaseInit(TIM2, &timerConfig);
+            TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+            TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+            NVIC_ClearPendingIRQ(TIM2_IRQn);
 
-        TIM_Cmd(TIM2, ENABLE);
-
-        // no decide if 1 or 0 bit has been received
-        //uint32_t duration = ((uint32_t) TIM2->CNT) - lastEdge;
-        //sprintf((char*) str, "F_DCF Duration %d\n", (int)duration);
-        //UART_Send(str, strlen((char*)str));
-
-        itoa(duration, str);
-        UART_Send((const uint8_t*)str, strlen(str));
-
-        if(duration <= 1500){
-            UART_Send((const uint8_t*)"R0\n\0", 3);
-        }else{
-            UART_Send((const uint8_t*)"R1\n\0", 3);
+            TIM_Cmd(TIM2, ENABLE);
         }
 
-    }
+        //itoa(duration, str);
+        //UART_Send((const uint8_t*)str, strlen(str));
 
+        //Parity speichern
+        //beginn von Bereich P1/P2/P3
+        if (rx_bit_counter ==  21 || rx_bit_counter ==  29 || rx_bit_counter ==  36) {
+           flags.parity_err = 0;
+        }
+        //Speichern von P1
+        if (rx_bit_counter ==  28) {
+            flags.parity_P1 = flags.parity_err;
+        }
+
+        //Speichern von P2
+        if (rx_bit_counter ==  35) {
+            flags.parity_P2 = flags.parity_err;
+        }
+
+        //Speichern von P3
+        if (rx_bit_counter ==  58) {
+            flags.parity_P3 = flags.parity_err;
+        }
+
+        // Decode bits
+        //0 = 100ms -> 1000
+        //1 = 200ms -> 2000
+        if(duration <= 1500){
+            //UART_Send((const uint8_t*)"R0\n\0", 3);
+        } else {
+            //UART_Send((const uint8_t*)"R1\n\0", 3);
+            //Schreiben einer 1 im dcf_rx_buffer an der Bitstelle rx_bit_counter
+            dcf_rx_buffer = dcf_rx_buffer | ((uint64_t) 1 << rx_bit_counter);
+            //Toggel Hilfs Parity
+            flags.parity_err = flags.parity_err ^ 1;
+        }
+        // next bit
+        ++rx_bit_counter;
+    }
+    // clear interrupt
     EXTI_ClearITPendingBit(EXTI_Line0);
 }
 
@@ -235,25 +261,4 @@ static void Add_one_Second (){
             }
         }
     }
-}
-
-
-static char* itoa(int i, char b[]){
-    char const digit[] = "0123456789";
-    char* p = b;
-    if(i < 0){
-        *p++ = '-';
-        i *= -1;
-    }
-    int shifter = i;
-    do { //Move to where representation ends
-        ++p;
-        shifter = shifter/10;
-    } while(shifter);
-    *p = '\0';
-    do { //Move back, inserting digits as u go
-        *--p = digit[i%10];
-        i = i/10;
-    } while(i);
-    return b;
 }

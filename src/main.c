@@ -9,9 +9,11 @@
 #include <string.h>
 
 #include "hw/uart.h"
+#include "util/itoa.h"
 
 #include "dcf77.h"
 #include "systick.h"
+
 
 
 int main(void)
@@ -30,16 +32,42 @@ int main(void)
     UART_Send((uint8_t*) str, len);
 
 
+    int i=0;
 
     while(1)
     {
-        volatile int* tmp = malloc(100*sizeof(int));
-        for(int i=0;i<100;i++){
-            if(tmp[i]>=0)
-                tmp[i]=i;
-            else
-                tmp[i]=i+1;
+//        volatile int* tmp = malloc(100*sizeof(int));
+//        for(int i=0;i<100;i++){
+//            if(tmp[i]>=0)
+//                tmp[i]=i;
+//            else
+//                tmp[i]=i+1;
+//        }
+//        free((void*) tmp);
+
+        // print dcf
+        char str[100];
+
+        int ss = dcf.ss;
+        int mm = dcf.mm;
+        int hh = dcf.hh;
+
+        if(i++ > 1000000){
+
+            // print time the ugly way
+            itoa(hh, str);
+            UART_Send((const uint8_t*) str, strlen(str));
+            UART_Send((const uint8_t*) ":", 1);
+
+            itoa(mm, str);
+            UART_Send((const uint8_t*) str, strlen(str));
+            UART_Send((const uint8_t*) ":", 1);
+
+            itoa(ss, str);
+            UART_Send((const uint8_t*) str, strlen(str));
+            UART_Send((const uint8_t*) "\n", 1);
+
+            i=0;
         }
-        free(tmp);
     }
 }
