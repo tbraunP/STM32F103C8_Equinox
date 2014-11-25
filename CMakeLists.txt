@@ -28,7 +28,7 @@ SET(CMAKE_RANLIB arm-unknown-eabi-ranlib)
 
 # Set compiler and linker options
 SET(LIBS_FLAG "-DHSE_VALUE=8000000 -DSTM32F103C8 -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -g") 
-SET(COMMON_FLAGS "-O0 -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -fsingle-precision-constant -Wall ${LIBS_FLAG} -mfloat-abi=soft -Wunused-value")
+SET(COMMON_FLAGS "-O0 -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -fno-common -fmessage-length=0 -fsingle-precision-constant -Wall ${LIBS_FLAG} -mfloat-abi=soft -Wunused-value -Wno-packed-bitfield-compat")
 SET(CMAKE_CXX_FLAGS "${COMMON_FLAGS}  -fno-rtti  -fno-exceptions -std=gnu++0x")
 SET(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99")
 

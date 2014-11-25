@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 struct __attribute__ ((__packed__)) DCF77_Bits_t {
-    uint8_t M			    :1	;
+    uint8_t M			:1	;
     uint8_t O1			:1	;
     uint8_t O2			:1	;
     uint8_t O3			:1	;
