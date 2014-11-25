@@ -124,6 +124,7 @@ void EXTI0_IRQHandler(void){
         Add_one_Second();
         flags.dcf_rx = true;
         //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
+
     } else {
         // store duration
         uint32_t duration = ((uint32_t) TIM2->CNT) - lastEdge;
@@ -214,6 +215,7 @@ void TIM2_IRQHandler(void){
         //Berechnung der Stunden BCD to HEX
         dcf.hh = rx_buffer->Hour-((rx_buffer->Hour/16)*6);
 
+        // hour correction
         if (h_hh) {
             dcf.hh--;
             h_hh = false;
@@ -228,13 +230,13 @@ void TIM2_IRQHandler(void){
         //Sekunden werden auf 0 zurückgesetzt
         dcf.ss = 59;
 
-
         flags.dcf_sync = true;        //SyncRTC_Clock();
     } else {
         //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
         //manuell weiter
         UART_Send((const uint8_t*)"Sync fehlgeschlagen...\n\0",23);
         Add_one_Second();
+
         flags.dcf_sync = false;
         flags.dcf_rx = false;
     }
@@ -245,7 +247,7 @@ void TIM2_IRQHandler(void){
     dcf_rx_buffer = 0;
 
     // DEBUG
-    UART_Send((const uint8_t*)"TIMER Second 59\n\0", 16);
+    //UART_Send((const uint8_t*)"TIMER Second 59\n\0", 16);
 }
 
 
