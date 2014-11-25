@@ -2,7 +2,7 @@
 #define DCF_INTERNAL_H
 
 #include <stdint.h>
-
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,12 +43,12 @@ struct __attribute__ ((__packed__)) DCF77_Bits_t {
 
 
 struct __attribute__ ((__packed__)) DCF_Flags_t {
-    volatile uint8_t parity_err				:1	;//Hilfs Parity
-    volatile uint8_t parity_P1				:1	;//Berechnetes Parity P1
-    volatile uint8_t parity_P2				:1	;//Berechnetes Parity P2
-    volatile uint8_t parity_P3				:1	;//Berechnetes Parity P3
-    volatile uint8_t dcf_rx					:1	;//Es wurde ein Impuls empfangen
-    volatile uint8_t dcf_sync				:1	;//In der letzten Minuten wurde die Uhr syncronisiert
+    volatile uint8_t parity_err			:1	;//Hilfs Parity
+    volatile uint8_t parity_P1			:1	;//Berechnetes Parity P1
+    volatile uint8_t parity_P2			:1	;//Berechnetes Parity P2
+    volatile uint8_t parity_P3			:1	;//Berechnetes Parity P3
+    volatile bool dcf_rx				:1	;//Es wurde ein Impuls empfangen
+    volatile bool dcf_sync				:1	;//In der letzten Minuten wurde die Uhr syncronisiert
 };
 
 

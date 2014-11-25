@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "dcf77.h"
 #include "dcf_internal.h"
@@ -11,27 +12,24 @@
 
 
 
-static char str[200];
+//static char str[200];
 
+// external visible struct
 volatile struct DCF77_Time_t dcf;
 
 // Timer configuration
 static TIM_TimeBaseInitTypeDef timerConfig;
 
 //Bitzähler für RX Bit
-volatile uint8_t rx_bit_counter = 0;
+static volatile uint8_t rx_bit_counter = 0;
 
 //64 Bit für DCF77 benötigt werden 59 Bits
-volatile uint64_t dcf_rx_buffer = 0;
+static volatile uint64_t dcf_rx_buffer = 0;
 
 // DCF77 Flags
-volatile static struct DCF_Flags_t flags;
+static volatile struct DCF_Flags_t flags;
 
-//Hilfs Sekunden Counter
-static volatile uint8_t h_ss = 0;
-
-//Hilfs Variable für Stundenwechsel
-static volatile uint8_t h_hh = 0;
+static volatile bool h_hh = false;
 
 static void EXTI0_Config(){
     // config structures
@@ -124,6 +122,7 @@ void EXTI0_IRQHandler(void){
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
         lastEdge = TIM2->CNT;
         Add_one_Second();
+        flags.dcf_rx = true;
         //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
     } else {
         // store duration
@@ -209,13 +208,16 @@ void TIM2_IRQHandler(void){
             dcf.mm--;
         } else {
             dcf.mm = 59;
-            h_hh = 1;
+            h_hh = true;
         }
 
         //Berechnung der Stunden BCD to HEX
         dcf.hh = rx_buffer->Hour-((rx_buffer->Hour/16)*6);
 
-        if (h_hh) {dcf.hh--;h_hh = 0;};
+        if (h_hh) {
+            dcf.hh--;
+            h_hh = false;
+        }
 
         //Berechnung des Tages BCD to HEX
         dcf.day= rx_buffer->Day-((rx_buffer->Day/16)*6);
@@ -225,13 +227,16 @@ void TIM2_IRQHandler(void){
         dcf.year= 2000 + rx_buffer->Year-((rx_buffer->Year/16)*6);
         //Sekunden werden auf 0 zurückgesetzt
         dcf.ss = 59;
-        flags.dcf_sync = 1;        //SyncRTC_Clock();
+
+
+        flags.dcf_sync = true;        //SyncRTC_Clock();
     } else {
         //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
         //manuell weiter
         UART_Send((const uint8_t*)"Sync fehlgeschlagen...\n\0",23);
         Add_one_Second();
-        flags.dcf_sync = 0;
+        flags.dcf_sync = false;
+        flags.dcf_rx = false;
     }
     //zurücksetzen des RX Bit Counters
     rx_bit_counter = 0;
