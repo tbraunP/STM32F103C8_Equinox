@@ -10,7 +10,10 @@
 #include "hw/uart.h"
 #include "util/itoa.h"
 
-
+/*
+ * Thanks to Ulrich Radig for sharing his code on http://www.mikrocontroller.net/attachment/110549/clock.c
+ * which has been adopted to the Cortex M3.
+ */
 
 //static char str[200];
 
