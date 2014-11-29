@@ -8,7 +8,12 @@
  extern "C" {
 #endif
 
-   
+extern volatile struct DCF77_Time_t clockTime;
+
+/**
+ * @brief Clock_Init
+ * Local clock
+ */
 void Clock_Init();
 
 /*

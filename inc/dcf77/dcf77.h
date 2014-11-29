@@ -6,6 +6,9 @@
  extern "C" {
 #endif
 
+ /**
+ * @brief The DCF77_Time_t struct
+ */
 struct DCF77_Time_t{
  volatile uint8_t ss;	//Globale Variable für Sekunden
  volatile uint8_t mm;	//Globale Variable für Minuten
@@ -15,6 +18,9 @@ struct DCF77_Time_t{
  volatile uint16_t year;	//Globale Variable für den Jahr
 };
 
+/**
+ * @brief dcf - external visible time
+ */
 extern volatile struct DCF77_Time_t dcf;
 
 

@@ -38,11 +38,11 @@ static volatile int64_t lastOverflow = 0;
 /**
  * @brief localTime - time of local clock
  */
-static volatile struct DCF77_Time_t localTime;
+volatile struct DCF77_Time_t clockTime;
 
 
 // forward declarations
-static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint16_t loops, uint16_t MAXRATE);
+static void updateVisualization(volatile struct DCF77_Time_t* time, uint16_t loops, uint16_t MAXRATE);
 
 /**
  * @brief Clock_Init
@@ -156,7 +156,7 @@ void TIM4_IRQHandler(void){
         }
 
         if(loops % UPDATE_RATE_SEC == 0){
-            DCF77_incrementTime(&localTime);
+            DCF77_incrementTime(&clockTime);
             UART_SendString("S\n\0");
         }
 
@@ -167,13 +167,13 @@ void TIM4_IRQHandler(void){
         TIM4->CCR1 += lastCompareDuration;
 
         // update visualization of clock
-        updateVisualization(&localTime, (loops % UPDATE_RATE_SEC), UPDATE_RATE_SEC);
+        updateVisualization(&clockTime, (loops % UPDATE_RATE_SEC), UPDATE_RATE_SEC);
     }
 }
 
 
 // tobe removed
-static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint16_t loops, uint16_t MAXRATE){
+static void updateVisualization(volatile struct DCF77_Time_t* time, uint16_t loops, uint16_t MAXRATE){
 
 }
 
@@ -220,7 +220,7 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
         correct = dcfTime;
     }
     // ok we update the local time
-    DFC77_cloneDCF(&localTime, correct);
+    DFC77_cloneDCF(&clockTime, correct);
 
     // reenable timing interrupt
     NVIC_EnableIRQ(TIM4_IRQn);

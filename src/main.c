@@ -16,6 +16,21 @@
 #include "systick.h"
 
 
+void printTime(int hh, int mm, int ss){
+    // print time the ugly way
+    static char str[100];
+    itoa(hh, str);
+    UART_SendString(str);
+    UART_SendString(":\0");
+
+    itoa(mm, str);
+    UART_SendString(str);
+    UART_SendString(":\0");
+
+    itoa(ss, str);
+    UART_SendString(str);
+    UART_SendString("\n\0");
+}
 
 
 int main(void)
@@ -35,43 +50,26 @@ int main(void)
     uint16_t len  = (uint16_t) strlen(str);
     UART_Send((uint8_t*) str, len);
 
-    int i = 0;
+    static int i = 0;
+    static int oldss = -1;
+
     while(1) {
-//        volatile int* tmp = malloc(100*sizeof(int));
-//        for(int i=0;i<100;i++){
-//            if(tmp[i]>=0)
-//                tmp[i]=i;
-//            else
-//                tmp[i]=i+1;
-//        }
-//        free((void*) tmp);
+
 
         // print dcf
-        char str[100];
+        volatile struct DCF77_Time_t* time = &clockTime;
 
-        static int oldss = -1;
-        int ss = dcf.ss;
-        int mm = dcf.mm;
-        int hh = dcf.hh;
+        int ss = time->ss;
+        int mm = time->mm;
+        int hh = time->hh;
 
         if(i++ > 50000){
             // only print if changed
             if(oldss == ss)
                 continue;
 
+            printTime(hh, mm, ss);
             oldss = ss;
-            // print time the ugly way
-            itoa(hh, str);
-            UART_SendString(str);
-            UART_SendString(":\0");
-
-            itoa(mm, str);
-            UART_SendString(str);
-            UART_SendString(":\0");
-
-            itoa(ss, str);
-            UART_SendString(str);
-            UART_SendString("\n\0");
 
             i=0;
         }
