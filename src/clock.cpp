@@ -213,10 +213,13 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     volatile struct DCF77_Time_t lTime;
 
     // perform correction
+    // NOTE: We assume WC, we are near the middle when the external trigger hit, therefore /2 correction rate,
+    // slower convergence but more stable
     if( currentPos >= totalDuration/2 ){
         // if the local clock is to slow, we can use current pos as new length of the cycle,
         // but we must also consider the remaining ticks until the overflow occures (calling Clock_IncrementSecond)
         newTotalDuration = (totalDuration + currentPos)/2;
+
         // but we start right now to apply our cycle change instead of waiting for the next round to start
         immediateCorrection = -(totalDuration - currentPos)/2;
 
