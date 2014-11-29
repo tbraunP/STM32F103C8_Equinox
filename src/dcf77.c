@@ -285,8 +285,8 @@ static void DFC77_SyncRTC_Clock(){
 
     if(flags.dcf_sync){
         ++consecSync;
-        if(consecSync > 5){
-            consecSync = 5;
+        if(consecSync > 3){
+            consecSync = 3;
             flags.dcf_sync_strong = true;
         }
     }else{
