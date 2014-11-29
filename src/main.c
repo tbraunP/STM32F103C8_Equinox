@@ -35,9 +35,7 @@ int main(void)
     uint16_t len  = (uint16_t) strlen(str);
     UART_Send((uint8_t*) str, len);
 
-
-    int i=0;
-
+    int i = 0;
     while(1) {
 //        volatile int* tmp = malloc(100*sizeof(int));
 //        for(int i=0;i<100;i++){
@@ -51,24 +49,29 @@ int main(void)
         // print dcf
         char str[100];
 
+        static int oldss = -1;
         int ss = dcf.ss;
         int mm = dcf.mm;
         int hh = dcf.hh;
 
-        if(i++ > 500000){
+        if(i++ > 50000){
+            // only print if changed
+            if(oldss == ss)
+                continue;
 
+            oldss = ss;
             // print time the ugly way
             itoa(hh, str);
-            UART_Send((const uint8_t*) str, strlen(str));
-            UART_Send((const uint8_t*) ":", 1);
+            UART_SendString(str);
+            UART_SendString(":\0");
 
             itoa(mm, str);
-            UART_Send((const uint8_t*) str, strlen(str));
-            UART_Send((const uint8_t*) ":", 1);
+            UART_SendString(str);
+            UART_SendString(":\0");
 
             itoa(ss, str);
-            UART_Send((const uint8_t*) str, strlen(str));
-            UART_Send((const uint8_t*) "\n", 1);
+            UART_SendString(str);
+            UART_SendString("\n\0");
 
             i=0;
         }
