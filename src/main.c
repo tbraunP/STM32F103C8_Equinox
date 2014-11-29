@@ -26,9 +26,9 @@ int main(void)
     // run uart
     UART_init();
 
-    Clock_Init();
+    //Clock_Init();
 
-    //DFC77_init();
+    DFC77_init();
 
     // send welcome message
     const char str[] = "Welcome to STM32F103 DCF77\n\0";
@@ -38,8 +38,7 @@ int main(void)
 
     int i=0;
 
-    while(1)
-    {
+    while(1) {
 //        volatile int* tmp = malloc(100*sizeof(int));
 //        for(int i=0;i<100;i++){
 //            if(tmp[i]>=0)

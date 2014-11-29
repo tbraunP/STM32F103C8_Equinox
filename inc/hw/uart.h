@@ -10,6 +10,8 @@ void UART_init();
 
 void UART_Send(const uint8_t* str, uint16_t len);
 
+void UART_SendString(const char* str);
+
 #ifdef __cplusplus
 }
 #endif

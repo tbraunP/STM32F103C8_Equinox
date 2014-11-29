@@ -4,6 +4,7 @@
 
 #include "dcf77.h"
 #include "dcf_internal.h"
+#include "clock.h"
 
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
@@ -236,7 +237,6 @@ void TIM2_IRQHandler(void){
         dcf.ss = 59;
 
         flags.dcf_sync = true;
-        DFC77_SyncRTC_Clock();
     } else {
         //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
         //manuell weiter
@@ -246,6 +246,9 @@ void TIM2_IRQHandler(void){
         flags.dcf_sync = false;
         flags.dcf_rx = false;
     }
+    // clock update, flags.dcf_sync indiacted sync
+    DFC77_SyncRTC_Clock();
+
     //zurücksetzen des RX Bit Counters
     rx_bit_counter = 0;
 
@@ -262,7 +265,21 @@ void TIM2_IRQHandler(void){
  * Perform a clock synchronisation
  */
 static void DFC77_SyncRTC_Clock(){
+    static bool clockStarted = false;
+    static int consecSync = 0;
 
+    if(flags.dcf_sync){
+        ++consecSync;
+        if(consecSync > 3){
+            Clock_Init();
+            UART_SendString("Starting Clock\n");
+        }
+    }else{
+        if(clockStarted){
+            Clock_Sync(&dcf);
+        }
+        --consecSync;
+    }
 }
 
 

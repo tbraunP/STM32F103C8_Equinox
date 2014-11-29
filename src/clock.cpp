@@ -4,6 +4,7 @@
 #include "stm32f10x.h"
 
 #include "hw/uart.h"
+#include "util/itoa.h"
 #include "dcf77.h"
 
 // CONSTANTS
@@ -27,8 +28,6 @@ static volatile uint8_t loops = 0;
 // stores round overflow occuring by switching to the next macrotick,
 // using the terms of flexray
 static volatile int32_t lastOverflow = 0;
-
-
 
 /**
  * @brief localTime - time of local clock
@@ -223,13 +222,16 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
         // choose right correction
         correct = dcfTime;
     }
-
     // ok we update the local time
     DFC77_cloneDCF(&localTime, correct);
 
-
     // reenable timing interrupt
     NVIC_EnableIRQ(TIM4_IRQn);
+
+    // print correction value
+    char str[100];
+    itoa((int) immediateCorrection, str);
+    UART_SendString(str);
 }
 
 /**
