@@ -4,13 +4,30 @@
 #include "stm32f10x.h"
 
 #include "hw/uart.h"
+#include "dcf77.h"
 
 #define     UPDATE_RATE         (25)
 #define     PRESCALER           (uint16_t) (0x2C1E)
 #define     COUNTERVALUE40MS    (uint16_t) (0xFF)
 
-static uint64_t totalDuration = 0;
+// local state variables
+static volatile int32_t totalDuration = 0;
+static volatile uint8_t loops = 0;
 
+/**
+ * @brief localTime - time of local clock
+ */
+static volatile struct DCF77_Time_t localTime;
+
+
+// forward declarations
+static void Clock_IncrementSecond();
+static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint8_t loops, uint8_t MAXRATE);
+
+/**
+ * @brief Clock_Init
+ * Initialize local timer for clock visualization
+ */
 void Clock_Init(){
     // Timer configuration
     TIM_TimeBaseInitTypeDef timerConfig;
@@ -46,6 +63,7 @@ void Clock_Init(){
     // set compare value
     TIM4->CCR1 = COUNTERVALUE40MS;
 
+    // total time
     totalDuration = COUNTERVALUE40MS * UPDATE_RATE;
 
 
@@ -64,13 +82,52 @@ void Clock_Init(){
 }
 
 
-/*
+
+/**
  * Compare Interrupt
  */
 void TIM4_IRQHandler(void){
+    // reset
+    TIM4->CNT = 0;
+
     // clear IRQ Status
     TIM_ClearITPendingBit(TIM4, TIM_IT_CC1);
     NVIC_ClearPendingIRQ(TIM2_IRQn);
 
-    TIM4->CNT = 0;
+    // now increment local loop counter and modify local
+    // time on second increment
+    ++loops;
+    if(loops == UPDATE_RATE){
+        Clock_IncrementSecond();
+        loops = 0;
+    }
+
+    // update visualization of clock
+    updateVisualization(&localTime, loops, UPDATE_RATE);
+}
+
+/**
+ * @brief Clock_IncrementSecond
+ * Increment local time
+ */
+static void Clock_IncrementSecond(){
+    localTime.ss++;//Addiere +1 zu Sekunden
+
+    if (localTime.ss == 60)
+    {
+        localTime.ss = 0;
+        localTime.mm++;//Addiere +1 zu Minuten
+        if (localTime.mm == 60) {
+            localTime.mm = 0;
+            localTime.hh++;//Addiere +1 zu Stunden
+            if (localTime.hh == 24) {
+                localTime.hh = 0;
+            }
+        }
+    }
+}
+
+// tobe removed
+static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint8_t loops, uint8_t MAXRATE){
+
 }

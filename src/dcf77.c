@@ -34,7 +34,12 @@ static volatile struct DCF_Flags_t flags;
 
 static volatile bool h_hh = false;
 
-static void EXTI0_Config(){
+
+// some helper functions, forward declarations
+static void DFC77_AddSecond();
+
+
+static void DFC77_EXTI0_Config(){
     // config structures
     EXTI_InitTypeDef   EXTI_InitStructure;
     GPIO_InitTypeDef   GPIO_InitStructure;
@@ -106,12 +111,8 @@ static void EXTI0_Config(){
 
 
 void DFC77_init(){
-    EXTI0_Config();
+    DFC77_EXTI0_Config();
 }
-
-
-// some helper functions
-static void Add_one_Second();
 
 
 // Edge recognized
@@ -124,7 +125,7 @@ void EXTI0_IRQHandler(void){
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
         lastEdge = TIM2->CNT;
-        Add_one_Second();
+        DFC77_AddSecond();
         flags.dcf_rx = true;
         //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
 
@@ -238,7 +239,7 @@ void TIM2_IRQHandler(void){
         //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
         //manuell weiter
         UART_Send((const uint8_t*)"Sync fehlgeschlagen...\n\0",23);
-        Add_one_Second();
+        DFC77_AddSecond();
 
         flags.dcf_sync = false;
         flags.dcf_rx = false;
@@ -256,7 +257,7 @@ void TIM2_IRQHandler(void){
 
 
 
-static void Add_one_Second (){
+static void DFC77_AddSecond (){
     dcf.ss++;//Addiere +1 zu Sekunden
 
     if (dcf.ss == 60)
