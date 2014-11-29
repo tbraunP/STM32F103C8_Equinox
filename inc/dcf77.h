@@ -27,6 +27,13 @@ void EXTI0_IRQHandler(void);
 // DCF Timer Handler
 void TIM2_IRQHandler(void);
 
+/**
+ * @brief clone a time from src to dest
+ * @param dest
+ * @param src
+ */
+void DFC77_cloneDCF(volatile struct DCF77_Time_t*dest, volatile struct DCF77_Time_t* src);
+
 #ifdef __cplusplus
  }
 #endif

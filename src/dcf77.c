@@ -282,3 +282,18 @@ static void DFC77_AddSecond (){
         }
     }
 }
+
+
+/**
+ * @brief clone a time from src to dest
+ * @param dest
+ * @param src
+ */
+void DFC77_cloneDCF(volatile struct DCF77_Time_t*dest, volatile struct DCF77_Time_t* src){
+    dest->day = src->day;
+    dest->mon = src->mon;
+    dest->year = src->year;
+    dest->hh = src->hh;
+    dest->mm = src->mm;
+    dest->ss = src->ss;
+}

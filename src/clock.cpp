@@ -37,7 +37,6 @@ static volatile struct DCF77_Time_t localTime;
 
 
 // forward declarations
-static void Clock_cloneDCF(volatile struct DCF77_Time_t*dest, volatile struct DCF77_Time_t* src);
 static void Clock_DecrementSecond(volatile struct DCF77_Time_t* time);
 
 static void Clock_IncrementSecond();
@@ -207,7 +206,7 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
         immediateCorrection = -(totalDuration - currentPos);
 
         // store corrected time
-        Clock_cloneDCF(&lTime, dcfTime);
+        DFC77_cloneDCF(&lTime, dcfTime);
 
         // now decrement time by one second, to get the right time at next increment second call
         Clock_DecrementSecond(&lTime);
@@ -226,25 +225,11 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     }
 
     // ok we update the local time
-    Clock_cloneDCF(&localTime, correct);
+    DFC77_cloneDCF(&localTime, correct);
 
 
     // reenable timing interrupt
     NVIC_EnableIRQ(TIM4_IRQn);
-}
-
-/**
- * @brief clone a time from src to dest
- * @param dest
- * @param src
- */
-static void Clock_cloneDCF(volatile struct DCF77_Time_t*dest, volatile struct DCF77_Time_t* src){
-    dest->day = src->day;
-    dest->mon = src->mon;
-    dest->year = src->year;
-    dest->hh = src->hh;
-    dest->mm = src->mm;
-    dest->ss = src->ss;
 }
 
 /**
