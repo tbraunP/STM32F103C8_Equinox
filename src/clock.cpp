@@ -27,7 +27,7 @@ static volatile int64_t immediateCorrection = 0;
 static volatile int64_t currentCycleDuration = 0;
 
 // macrotick counter
-static volatile uint8_t loops = 0;
+static volatile uint16_t loops = 0;
 
 
 // stores round overflow occuring by switching to the next macrotick,
@@ -44,7 +44,7 @@ static volatile struct DCF77_Time_t localTime;
 static void Clock_DecrementSecond(volatile struct DCF77_Time_t* time);
 
 static void Clock_IncrementSecond();
-static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint8_t loops, uint8_t MAXRATE);
+static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint16_t loops, uint16_t MAXRATE);
 
 /**
  * @brief Clock_Init
@@ -87,7 +87,7 @@ void Clock_Init(){
     TIM4->CCR1 = COUNTERVALUE40MS;
 
     // total time
-    totalDuration = COUNTERVALUE40MS * UPDATE_RATE_SEC;
+    totalDuration = COUNTERVALUE40MS * RATE_MIN;
     newTotalDuration = totalDuration;
 
 
@@ -114,16 +114,16 @@ void Clock_Init(){
 static inline uint16_t Clock_calcMacrotickDuration(){
     int32_t tmp = totalDuration + lastOverflow + immediateCorrection;
     // assuming a division is faster in this case
-    int32_t divider = tmp / UPDATE_RATE_SEC;
+    int32_t divider = tmp / RATE_MIN;
 
-    int32_t remainder = tmp - (divider * UPDATE_RATE_SEC);
+    int32_t remainder = tmp - (divider * RATE_MIN);
     // < 0 not possible
     // = 0 worked out perfect
     if(remainder == 0){
         lastOverflow = 0;
     }else{
         // remainder > 0
-        lastOverflow = remainder - UPDATE_RATE_SEC;
+        lastOverflow = remainder - RATE_MIN;
         ++divider;
     }
 
@@ -147,10 +147,7 @@ void TIM4_IRQHandler(void){
         // now increment local loop counter and modify local
         // time on second increment
         ++loops;
-        if(loops == UPDATE_RATE_SEC){
-            Clock_IncrementSecond();
-            UART_SendString("S\n\0");
-
+        if(loops == RATE_MIN){
             // reset timing information for next 1 second round
             loops = 0;
             totalDuration = newTotalDuration;
@@ -158,6 +155,11 @@ void TIM4_IRQHandler(void){
             currentCycleDuration = 0;
             immediateCorrection = 0; // only applied till next cycle/second starts, then
             // newTotalDuration contains corrected value
+        }
+
+        if(loops % UPDATE_RATE_SEC == 0){
+            Clock_IncrementSecond();
+            UART_SendString("S\n\0");
         }
 
         // update timer compare register and update duration of current cycle /second in ticks
@@ -193,7 +195,7 @@ static void Clock_IncrementSecond(){
 }
 
 // tobe removed
-static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint8_t loops, uint8_t MAXRATE){
+static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint16_t loops, uint16_t MAXRATE){
 
 }
 
@@ -254,6 +256,8 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     UART_SendString(str);
     UART_SendString("\n\0");
 }
+
+
 
 /**
  * @brief Clock_IncrementSecond
