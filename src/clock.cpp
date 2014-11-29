@@ -8,21 +8,23 @@
 #include "dcf77.h"
 
 // CONSTANTS
-#define     UPDATE_RATE         (25)
-#define     PRESCALER           (uint16_t) (0x2C1E)
-#define     COUNTERVALUE40MS    (uint16_t) (0xFF)
-#define     COUNTERVALUE40MS_2    (uint16_t) (COUNTERVALUE40MS/2)
+#define     UPDATE_RATE_SEC         (25)
+#define     RATE_MIN                (60*UPDATE_RATE_SEC)
+#define     PRESCALER               (uint16_t) (0x2C1E)
+#define     COUNTERVALUE40MS        (uint16_t) (0xFF)
+#define     COUNTERVALUE40MS_2      (uint16_t) (COUNTERVALUE40MS/2)
 
 // length of current second cycle in timer click
-static volatile int32_t totalDuration = 0;
+static volatile int64_t totalDuration = 0;
 static volatile uint16_t lastCompareDuration = COUNTERVALUE40MS;
+static volatile uint16_t previousCompareRegisterValue = COUNTERVALUE40MS;
 
 // new duration of whole cycle after correction in timer clicks
-static volatile int32_t newTotalDuration = 0;
-static volatile int32_t immediateCorrection = 0;
+static volatile int64_t newTotalDuration = 0;
+static volatile int64_t immediateCorrection = 0;
 
 // position in current cycle
-static volatile int32_t currentCycleDuration = 0;
+static volatile int64_t currentCycleDuration = 0;
 
 // macrotick counter
 static volatile uint8_t loops = 0;
@@ -30,7 +32,7 @@ static volatile uint8_t loops = 0;
 
 // stores round overflow occuring by switching to the next macrotick,
 // using the terms of flexray
-static volatile int32_t lastOverflow = 0;
+static volatile int64_t lastOverflow = 0;
 
 /**
  * @brief localTime - time of local clock
@@ -81,10 +83,11 @@ void Clock_Init(){
     TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Disable);
 
     // set compare value
+    lastCompareDuration = COUNTERVALUE40MS;
     TIM4->CCR1 = COUNTERVALUE40MS;
 
     // total time
-    totalDuration = COUNTERVALUE40MS * UPDATE_RATE;
+    totalDuration = COUNTERVALUE40MS * UPDATE_RATE_SEC;
     newTotalDuration = totalDuration;
 
 
@@ -111,16 +114,16 @@ void Clock_Init(){
 static inline uint16_t Clock_calcMacrotickDuration(){
     int32_t tmp = totalDuration + lastOverflow + immediateCorrection;
     // assuming a division is faster in this case
-    int32_t divider = tmp / UPDATE_RATE;
+    int32_t divider = tmp / UPDATE_RATE_SEC;
 
-    int32_t remainder = tmp - (divider * UPDATE_RATE);
+    int32_t remainder = tmp - (divider * UPDATE_RATE_SEC);
     // < 0 not possible
     // = 0 worked out perfect
     if(remainder == 0){
         lastOverflow = 0;
     }else{
         // remainder > 0
-        lastOverflow = remainder - UPDATE_RATE;
+        lastOverflow = remainder - UPDATE_RATE_SEC;
         ++divider;
     }
 
@@ -144,8 +147,9 @@ void TIM4_IRQHandler(void){
         // now increment local loop counter and modify local
         // time on second increment
         ++loops;
-        if(loops == UPDATE_RATE){
+        if(loops == UPDATE_RATE_SEC){
             Clock_IncrementSecond();
+            UART_SendString("S\n\0");
 
             // reset timing information for next 1 second round
             loops = 0;
@@ -159,10 +163,11 @@ void TIM4_IRQHandler(void){
         // update timer compare register and update duration of current cycle /second in ticks
         currentCycleDuration += lastCompareDuration;
         lastCompareDuration = Clock_calcMacrotickDuration();
+        previousCompareRegisterValue = TIM4->CCR1;
         TIM4->CCR1 += lastCompareDuration;
 
         // update visualization of clock
-        updateVisualization(&localTime, loops, UPDATE_RATE);
+        updateVisualization(&localTime, loops, UPDATE_RATE_SEC);
     }
 }
 
@@ -198,7 +203,7 @@ static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint8_t
  */
 void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     NVIC_DisableIRQ(TIM4_IRQn);
-    int32_t currentPos = TIM4->CNT + currentCycleDuration;
+    int64_t currentPos = (TIM4->CNT - previousCompareRegisterValue) + currentCycleDuration;
     immediateCorrection = 0;
 
     // store correction time
@@ -209,9 +214,9 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     if( currentPos >= totalDuration/2 ){
         // if the local clock is to slow, we can use current pos as new length of the cycle,
         // but we must also consider the remaining ticks until the overflow occures (calling Clock_IncrementSecond)
-        newTotalDuration = currentPos;
+        newTotalDuration = (totalDuration + currentPos)/2;
         // but we start right now to apply our cycle change instead of waiting for the next round to start
-        immediateCorrection = -(totalDuration - currentPos);
+        immediateCorrection = -(totalDuration - currentPos)/2;
 
         // store corrected time
         DFC77_cloneDCF(&lTime, dcfTime);
@@ -223,10 +228,10 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
         correct = &lTime;
     } else {
         // no we assume the local clock is too fast, and we have to increase the cycle length
-        newTotalDuration = totalDuration + currentPos;
+        newTotalDuration = totalDuration + (currentPos/2);
         // but we start right now to apply our cycle change instead of waiting for the next round to start
         // so we modify the immediate correction to apply our changes
-        immediateCorrection = currentPos;
+        immediateCorrection = (currentPos/2);
 
         // choose right correction
         correct = dcfTime;
@@ -240,6 +245,9 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     // print correction value
     char str[100];
     itoa((int) immediateCorrection, str);
+    UART_SendString(str);
+    UART_SendString(":\0");
+    itoa((int) totalDuration, str);
     UART_SendString(str);
     UART_SendString(":\0");
     itoa((int) newTotalDuration, str);

@@ -17,6 +17,7 @@
  */
 
 //static char str[200];
+#define STRONG_SYNC (0)
 
 // external visible struct
 volatile struct DCF77_Time_t dcf;
@@ -285,8 +286,8 @@ static void DFC77_SyncRTC_Clock(){
 
     if(flags.dcf_sync){
         ++consecSync;
-        if(consecSync > 3){
-            consecSync = 3;
+        if(consecSync > STRONG_SYNC){
+            consecSync = STRONG_SYNC;
             flags.dcf_sync_strong = true;
         }
     }else{
