@@ -129,8 +129,8 @@ void EXTI0_IRQHandler(void){
 
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
-        // prevent reception errors (200ms before next rising edge)
-        if((timerValue - lastRisingEdge > 200) || (lastRisingEdge == 0 )){
+        // prevent reception errors (300ms before next rising edge)
+        if((timerValue - lastRisingEdge > 300)){
             lastRisingEdge = timerValue;
             flags.dcf_rx = true;
             //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
