@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "clock.h"
 
 #include "stm32f10x_conf.h"
@@ -5,7 +6,7 @@
 
 #include "hw/uart.h"
 #include "util/itoa.h"
-#include "dcf77.h"
+#include "dcf77/dcf77.h"
 
 // CONSTANTS
 #define     UPDATE_RATE_SEC         (25)
@@ -186,7 +187,7 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     immediateCorrection = 0;
 
     // store correction time
-    volatile struct DCF77_Time_t* correct = nullptr;
+    volatile struct DCF77_Time_t* correct = NULL;
     volatile struct DCF77_Time_t lTime;
 
     // perform correction

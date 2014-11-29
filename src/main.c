@@ -11,7 +11,7 @@
 #include "hw/uart.h"
 #include "util/itoa.h"
 
-#include "dcf77.h"
+#include "dcf77/dcf77.h"
 #include "clock.h"
 #include "systick.h"
 

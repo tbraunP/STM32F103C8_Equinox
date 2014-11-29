@@ -2,11 +2,13 @@
 #define CLOCK_H
 
 #include <stdint.h>
+#include "dcf77/dcf77.h"
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
+   
 void Clock_Init();
 
 /*

@@ -84,9 +84,10 @@ include_directories("src")
 AUX_SOURCE_DIRECTORY("src/" SRCS)
 AUX_SOURCE_DIRECTORY("src/hw" SRCSHW)
 AUX_SOURCE_DIRECTORY("src/util" SRCSUTIL)
+AUX_SOURCE_DIRECTORY("src/dcf77" SRCSDCF)
 
 
-SET(SRCS ${SRCS} ${SRCSHW} ${SRCSUTIL} ${LIBSRCS})
+SET(SRCS ${SRCS} ${SRCSHW} ${SRCSUTIL} ${SRCSDCF} ${LIBSRCS})
 
 # define target
 add_executable(${TARGET}.elf ${SRCS})
