@@ -121,11 +121,10 @@ void DFC77_init(){
 void EXTI0_IRQHandler(void){
 
     static uint32_t lastRisingEdge =0;
-    static uint32_t lastFallingEdge =0;
     static uint32_t timerValue = 0;
 
     // perform early readout
-    timerValue = TIM2->CNT;
+    timerValue = (uint32_t) TIM2->CNT;
 
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
@@ -140,10 +139,9 @@ void EXTI0_IRQHandler(void){
         }
     } else {
         // falling edge
-        lastFallingEdge = timerValue;
 
         // store duration
-        uint32_t duration = ((uint32_t) timerValue) - lastRisingEdge;
+        uint32_t duration = timerValue - lastRisingEdge;
         // sanity check to prevent disturbances
         if(duration > 700 && duration < 3000){
             // reset second overflow timer and restart
@@ -282,20 +280,28 @@ void TIM2_IRQHandler(void){
  */
 static void DFC77_SyncRTC_Clock(){
     static bool clockStarted = false;
-    static int consecSync = 0;
+    static uint8_t consecSync = 0;
 
     if(flags.dcf_sync){
         ++consecSync;
+        if(consecSync > 5){
+            consecSync = 5;
+            flags.dcf_sync_strong = true;
+        }
+    }else{
+        consecSync = 0;
+        flags.dcf_sync_strong = true;
+    }
+
+    // start clock
+    if(flags.dcf_sync_strong && flags.dcf_sync){
         if(clockStarted){
             Clock_Sync(&dcf);
         }else{
-            if(consecSync > 2){
-                Clock_Init();
-                UART_SendString("Starting Clock\n");
-            }
+            Clock_Init();
+            UART_SendString("Starting Clock\n");
+            clockStarted = true;
         }
-    } else {
-        consecSync = 0;
     }
 }
 

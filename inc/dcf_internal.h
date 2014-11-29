@@ -49,6 +49,7 @@ struct __attribute__ ((__packed__)) DCF_Flags_t {
     volatile uint8_t parity_P3			:1	;//Berechnetes Parity P3
     volatile bool dcf_rx				:1	;//Es wurde ein Impuls empfangen
     volatile bool dcf_sync				:1	;//In der letzten Minuten wurde die Uhr syncronisiert
+    volatile bool dcf_sync_strong       :1  ;//strong sync
 };
 
 
