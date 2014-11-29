@@ -12,7 +12,9 @@
 #include "util/itoa.h"
 
 #include "dcf77.h"
+#include "clock.h"
 #include "systick.h"
+
 
 
 
@@ -24,7 +26,9 @@ int main(void)
     // run uart
     UART_init();
 
-    DFC77_init();
+    Clock_Init();
+
+    //DFC77_init();
 
     // send welcome message
     const char str[] = "Welcome to STM32F103 DCF77\n\0";

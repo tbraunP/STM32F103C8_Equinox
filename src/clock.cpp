@@ -13,16 +13,16 @@ static uint64_t totalDuration = 0;
 
 void Clock_Init(){
     // Timer configuration
-    static TIM_TimeBaseInitTypeDef timerConfig;
-    static TIM_OCInitTypeDef TIM_OCInitStructure;
+    TIM_TimeBaseInitTypeDef timerConfig;
+    TIM_OCInitTypeDef TIM_OCInitStructure;
+    NVIC_InitTypeDef   NVIC_InitStructure;
+
 
     // now we need a timer to decide if we received a bit or not
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-    TIM_DeInit(TIM2);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+    TIM_DeInit(TIM4);
     TIM_TimeBaseStructInit(&timerConfig);
 
-    /* Compute the prescaler value for 10 KHz -> 10000 * 10 KHz = 1 s */
-    uint16_t prescaler = (uint16_t) (SystemCoreClock / 10000) - 1;
     /* Time base configuration */
     timerConfig.TIM_Period = 0xFFFF;
     timerConfig.TIM_Prescaler = PRESCALER-1;
@@ -72,4 +72,5 @@ void TIM4_IRQHandler(void){
     TIM_ClearITPendingBit(TIM4, TIM_IT_CC1);
     NVIC_ClearPendingIRQ(TIM2_IRQn);
 
+    TIM4->CNT = 0;
 }
