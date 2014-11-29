@@ -55,7 +55,7 @@ int main(void)
         int mm = dcf.mm;
         int hh = dcf.hh;
 
-        if(i++ > 1000000){
+        if(i++ > 500000){
 
             // print time the ugly way
             itoa(hh, str);

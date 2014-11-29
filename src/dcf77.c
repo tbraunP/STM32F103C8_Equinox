@@ -86,10 +86,10 @@ static void DFC77_EXTI0_Config(){
     TIM_TimeBaseStructInit(&timerConfig);
 
     /* Compute the prescaler value for 10 KHz -> 10000 * 10 KHz = 1 s */
-    uint16_t prescaler = (uint16_t) (SystemCoreClock / 10000) - 1;
+    uint16_t prescaler = (uint16_t) (SystemCoreClock / 10000);
     /* Time base configuration */
     timerConfig.TIM_Period = (11500);
-    timerConfig.TIM_Prescaler = prescaler;
+    timerConfig.TIM_Prescaler = prescaler-1;
     timerConfig.TIM_ClockDivision = 0;
     timerConfig.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -120,74 +120,82 @@ void DFC77_init(){
 // Edge recognized
 void EXTI0_IRQHandler(void){
 
-    static int counter = 0;
     static uint32_t lastEdge =0;
-    ++counter;
+    static uint32_t timerValue = 0;
+
+    // perform early readout
+    timerValue = TIM2->CNT;
 
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
-        lastEdge = TIM2->CNT;
-        DFC77_AddSecond();
+        lastEdge = timerValue;
         flags.dcf_rx = true;
         //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
 
+        // short delay but who cares
+        DFC77_AddSecond();
+
     } else {
         // store duration
-        uint32_t duration = ((uint32_t) TIM2->CNT) - lastEdge;
+        uint32_t duration = ((uint32_t) timerValue) - lastEdge;
+        // sanity check to prevent disturbances
+        if(duration > 700 && duration < 3000){
+            // reset second overflow timer and restart
+            {
+                TIM_Cmd(TIM2, DISABLE);
+                TIM_DeInit(TIM2);
 
-        // reset second overflow timer and restart
-        {
-            TIM_Cmd(TIM2, DISABLE);
-            TIM_DeInit(TIM2);
+                TIM_TimeBaseInit(TIM2, &timerConfig);
+                TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+                TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+                NVIC_ClearPendingIRQ(TIM2_IRQn);
 
-            TIM_TimeBaseInit(TIM2, &timerConfig);
-            TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-            TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-            NVIC_ClearPendingIRQ(TIM2_IRQn);
+                TIM_Cmd(TIM2, ENABLE);
+            }
 
-            TIM_Cmd(TIM2, ENABLE);
+            //itoa(duration, str);
+            //UART_Send((const uint8_t*)str, strlen(str));
+
+            //Parity speichern
+            //beginn von Bereich P1/P2/P3
+            if (rx_bit_counter ==  21 || rx_bit_counter ==  29 || rx_bit_counter ==  36) {
+                flags.parity_err = 0;
+            }
+            //Speichern von P1
+            if (rx_bit_counter ==  28) {
+                flags.parity_P1 = flags.parity_err;
+            }
+
+            //Speichern von P2
+            if (rx_bit_counter ==  35) {
+                flags.parity_P2 = flags.parity_err;
+            }
+
+            //Speichern von P3
+            if (rx_bit_counter ==  58) {
+                flags.parity_P3 = flags.parity_err;
+            }
+
+            // Decode bits
+            //0 = 100ms -> 1000
+            //1 = 200ms -> 2000
+
+            if(duration <= 1500){
+                //UART_Send((const uint8_t*)"R0\n\0", 3);
+            } else {
+                //UART_Send((const uint8_t*)"R1\n\0", 3);
+                //Schreiben einer 1 im dcf_rx_buffer an der Bitstelle rx_bit_counter
+                dcf_rx_buffer = dcf_rx_buffer | ((uint64_t) 1 << rx_bit_counter);
+                //Toggel Hilfs Parity
+                flags.parity_err = flags.parity_err ^ 1;
+            }
+            // next bit
+            ++rx_bit_counter;
         }
-
-        //itoa(duration, str);
-        //UART_Send((const uint8_t*)str, strlen(str));
-
-        //Parity speichern
-        //beginn von Bereich P1/P2/P3
-        if (rx_bit_counter ==  21 || rx_bit_counter ==  29 || rx_bit_counter ==  36) {
-           flags.parity_err = 0;
-        }
-        //Speichern von P1
-        if (rx_bit_counter ==  28) {
-            flags.parity_P1 = flags.parity_err;
-        }
-
-        //Speichern von P2
-        if (rx_bit_counter ==  35) {
-            flags.parity_P2 = flags.parity_err;
-        }
-
-        //Speichern von P3
-        if (rx_bit_counter ==  58) {
-            flags.parity_P3 = flags.parity_err;
-        }
-
-        // Decode bits
-        //0 = 100ms -> 1000
-        //1 = 200ms -> 2000
-        if(duration <= 1500){
-            //UART_Send((const uint8_t*)"R0\n\0", 3);
-        } else {
-            //UART_Send((const uint8_t*)"R1\n\0", 3);
-            //Schreiben einer 1 im dcf_rx_buffer an der Bitstelle rx_bit_counter
-            dcf_rx_buffer = dcf_rx_buffer | ((uint64_t) 1 << rx_bit_counter);
-            //Toggel Hilfs Parity
-            flags.parity_err = flags.parity_err ^ 1;
-        }
-        // next bit
-        ++rx_bit_counter;
     }
     // clear interrupt
     EXTI_ClearITPendingBit(EXTI_Line0);
+    NVIC_ClearPendingIRQ(EXTI0_IRQn);
 }
 
 /*
@@ -240,7 +248,7 @@ void TIM2_IRQHandler(void){
     } else {
         //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
         //manuell weiter
-        UART_Send((const uint8_t*)"Sync fehlgeschlagen...\n\0",23);
+        UART_SendString("Sync fehlgeschlagen...\n");
         DFC77_AddSecond();
 
         flags.dcf_sync = false;
