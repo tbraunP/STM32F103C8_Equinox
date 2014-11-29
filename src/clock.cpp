@@ -11,6 +11,7 @@
 #define     UPDATE_RATE         (25)
 #define     PRESCALER           (uint16_t) (0x2C1E)
 #define     COUNTERVALUE40MS    (uint16_t) (0xFF)
+#define     COUNTERVALUE40MS_2    (uint16_t) (COUNTERVALUE40MS/2)
 
 // length of current second cycle in timer click
 static volatile int32_t totalDuration = 0;
@@ -115,46 +116,51 @@ static inline uint16_t Clock_calcMacrotickDuration(){
     // = 0 worked out perfect
     if(remainder == 0){
         lastOverflow = 0;
-        return (uint16_t) (divider);
     }else{
         // remainder > 0
         lastOverflow = remainder - UPDATE_RATE;
-        return (uint16_t) (divider+1);
+        ++divider;
     }
+
+    // check bounds
+    if(divider <= COUNTERVALUE40MS_2)
+        return COUNTERVALUE40MS_2;
+    if(divider >= COUNTERVALUE40MS+COUNTERVALUE40MS_2)
+        return (COUNTERVALUE40MS+COUNTERVALUE40MS_2);
+    return (uint16_t)divider;
 }
 
 /**
  * Compare Interrupt
  */
 void TIM4_IRQHandler(void){
-    // reset counter
-    TIM4->CNT = 0;
+    if(TIM_GetITStatus(TIM4, TIM_IT_CC1) == SET){
+        // clear IRQ Status
+        TIM_ClearITPendingBit(TIM4, TIM_IT_CC1);
+        NVIC_ClearPendingIRQ(TIM2_IRQn);
 
-    // clear IRQ Status
-    TIM_ClearITPendingBit(TIM4, TIM_IT_CC1);
-    NVIC_ClearPendingIRQ(TIM2_IRQn);
+        // now increment local loop counter and modify local
+        // time on second increment
+        ++loops;
+        if(loops == UPDATE_RATE){
+            Clock_IncrementSecond();
 
-    // now increment local loop counter and modify local
-    // time on second increment
-    ++loops;
-    if(loops == UPDATE_RATE){
-        Clock_IncrementSecond();
+            // reset timing information for next 1 second round
+            loops = 0;
+            totalDuration = newTotalDuration;
+            lastOverflow = 0;
+            currentCycleDuration = 0;
+            immediateCorrection = 0; // only applied till next cycle/second starts, then
+            // newTotalDuration contains corrected value
+        }
 
-        // reset timing information for next 1 second round
-        loops = 0;
-        totalDuration = newTotalDuration;
-        lastOverflow = 0;
-        currentCycleDuration = 0;
-        immediateCorrection = 0; // only applied till next cycle/second starts, then
-        // newTotalDuration contains corrected value
+        // update timer compare register
+        currentCycleDuration += TIM4->CCR1;
+        TIM4->CCR1 += Clock_calcMacrotickDuration();
+
+        // update visualization of clock
+        updateVisualization(&localTime, loops, UPDATE_RATE);
     }
-
-    // update timer compare register
-    currentCycleDuration += TIM4->CCR1;
-    TIM4->CCR1 = Clock_calcMacrotickDuration();
-
-    // update visualization of clock
-    updateVisualization(&localTime, loops, UPDATE_RATE);
 }
 
 /**
@@ -232,6 +238,10 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     char str[100];
     itoa((int) immediateCorrection, str);
     UART_SendString(str);
+    UART_SendString(":\0");
+    itoa((int) newTotalDuration, str);
+    UART_SendString(str);
+    UART_SendString("\n\0");
 }
 
 /**
