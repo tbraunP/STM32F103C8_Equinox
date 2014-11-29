@@ -18,6 +18,10 @@ struct DCF77_Time_t{
 extern volatile struct DCF77_Time_t dcf;
 
 
+/**
+ * @brief DFC77_init
+ * Start DCF77 Clock
+ */
 void DFC77_init();
 
 
@@ -26,6 +30,23 @@ void EXTI0_IRQHandler(void);
 
 // DCF Timer Handler
 void TIM2_IRQHandler(void);
+
+
+/**
+ * @brief DCF77_decrementTime
+ * @param time - time to decrement
+ * Decrement given time
+ */
+void DCF77_decrementTime(volatile struct DCF77_Time_t* time);
+
+
+/**
+ * @brief DCF77_incrementTime
+ * @param time - time to increment
+ * Increment given time by one second
+ */
+void DCF77_incrementTime(volatile struct DCF77_Time_t* time);
+
 
 /**
  * @brief clone a time from src to dest

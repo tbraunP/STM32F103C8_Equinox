@@ -41,9 +41,6 @@ static volatile struct DCF77_Time_t localTime;
 
 
 // forward declarations
-static void Clock_DecrementSecond(volatile struct DCF77_Time_t* time);
-
-static void Clock_IncrementSecond();
 static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint16_t loops, uint16_t MAXRATE);
 
 /**
@@ -158,7 +155,7 @@ void TIM4_IRQHandler(void){
         }
 
         if(loops % UPDATE_RATE_SEC == 0){
-            Clock_IncrementSecond();
+            DCF77_incrementTime(&localTime);
             UART_SendString("S\n\0");
         }
 
@@ -173,26 +170,6 @@ void TIM4_IRQHandler(void){
     }
 }
 
-/**
- * @brief Clock_IncrementSecond
- * Increment local time
- */
-static void Clock_IncrementSecond(){
-    localTime.ss++;//Addiere +1 zu Sekunden
-
-    if (localTime.ss == 60)
-    {
-        localTime.ss = 0;
-        localTime.mm++;//Addiere +1 zu Minuten
-        if (localTime.mm == 60) {
-            localTime.mm = 0;
-            localTime.hh++;//Addiere +1 zu Stunden
-            if (localTime.hh == 24) {
-                localTime.hh = 0;
-            }
-        }
-    }
-}
 
 // tobe removed
 static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint16_t loops, uint16_t MAXRATE){
@@ -227,7 +204,7 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
         DFC77_cloneDCF(&lTime, dcfTime);
 
         // now decrement time by one second, to get the right time at next increment second call
-        Clock_DecrementSecond(&lTime);
+        DCF77_decrementTime(&lTime);
 
         // choose right correction
         correct = &lTime;
@@ -260,26 +237,3 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     UART_SendString("\n\0");
 }
 
-
-
-/**
- * @brief Clock_IncrementSecond
- * decrement time
- */
-static void Clock_DecrementSecond(volatile struct DCF77_Time_t* time){
-    time->ss--;//Addiere -1 zu Sekunden
-
-    // underflow causes wrap arround
-    if (localTime.ss > 60)
-    {
-        localTime.ss = 0;
-        localTime.mm--;//Addiere -1 zu Minuten
-        if (localTime.mm > 60) { // underflow causes wrap arround
-            localTime.mm = 0;
-            localTime.hh--;//Addiere -1 zu Stunden
-            if (localTime.hh > 24) { // underflow causes wrap arround
-                localTime.hh = 0;
-            }
-        }
-    }
-}

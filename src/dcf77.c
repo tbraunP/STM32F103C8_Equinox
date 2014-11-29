@@ -38,7 +38,6 @@ static volatile bool h_hh = false;
 
 
 // some helper functions, forward declarations
-static void DFC77_AddSecond();
 static void DFC77_SyncRTC_Clock();
 
 
@@ -137,7 +136,7 @@ void EXTI0_IRQHandler(void){
             //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
 
             // short delay but who cares
-            DFC77_AddSecond();
+            DCF77_incrementTime(&dcf);
         }
     } else {
         // falling edge
@@ -257,7 +256,7 @@ void TIM2_IRQHandler(void){
         //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
         //manuell weiter
         UART_SendString("Sync fehlgeschlagen...\n");
-        DFC77_AddSecond();
+        DCF77_incrementTime(&dcf);
 
         flags.dcf_sync = false;
         flags.dcf_rx = false;
@@ -307,19 +306,24 @@ static void DFC77_SyncRTC_Clock(){
     }
 }
 
+/**
+ * @brief DCF77_decrementTime
+ * @param time - time to decrement
+ * Decrement given time
+ */
+void DCF77_decrementTime(volatile struct DCF77_Time_t* time){
+    time->ss--;//Addiere -1 zu Sekunden
 
-static void DFC77_AddSecond (){
-    dcf.ss++;//Addiere +1 zu Sekunden
-
-    if (dcf.ss == 60)
+    // underflow causes wrap arround
+    if (time->ss > 60)
     {
-        dcf.ss = 0;
-        dcf.mm++;//Addiere +1 zu Minuten
-        if (dcf.mm == 60) {
-            dcf.mm = 0;
-            dcf.hh++;//Addiere +1 zu Stunden
-            if (dcf.hh == 24) {
-                dcf.hh = 0;
+        time->ss = 0;
+        time->mm--;//Addiere -1 zu Minuten
+        if (time->mm > 60) { // underflow causes wrap arround
+            time->mm = 0;
+            time->hh--;//Addiere -1 zu Stunden
+            if (time->hh > 24) { // underflow causes wrap arround
+                time->hh = 0;
             }
         }
     }
@@ -327,9 +331,31 @@ static void DFC77_AddSecond (){
 
 
 /**
+ * @brief DCF77_incrementTime
+ * @param time - time to increment
+ * Increment given time by one second
+ */
+void DCF77_incrementTime(volatile struct DCF77_Time_t* time){
+    time->ss++;//Addiere +1 zu Sekunden
+
+    if (time->ss == 60)
+    {
+        time->ss = 0;
+        time->mm++;//Addiere +1 zu Minuten
+        if (time->mm == 60) {
+            time->mm = 0;
+            time->hh++;//Addiere +1 zu Stunden
+            if (time->hh == 24) {
+                time->hh = 0;
+            }
+        }
+    }
+}
+
+/**
  * @brief clone a time from src to dest
- * @param dest
- * @param src
+ * @param dest - target structur
+ * @param src - src structure
  */
 void DFC77_cloneDCF(volatile struct DCF77_Time_t*dest, volatile struct DCF77_Time_t* src){
     dest->day = src->day;
