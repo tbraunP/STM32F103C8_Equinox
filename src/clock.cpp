@@ -6,13 +6,28 @@
 #include "hw/uart.h"
 #include "dcf77.h"
 
+// CONSTANTS
 #define     UPDATE_RATE         (25)
 #define     PRESCALER           (uint16_t) (0x2C1E)
 #define     COUNTERVALUE40MS    (uint16_t) (0xFF)
 
-// local state variables
+// length of current second cycle in timer click
 static volatile int32_t totalDuration = 0;
+
+// new duration of whole cycle after correction in timer clicks
+static volatile int32_t newTotalDuration = 0;
+
+// position in current cycle
+static volatile int32_t currentCycleDuration = 0;
+
+// macrotick counter
 static volatile uint8_t loops = 0;
+
+// stores round overflow occuring by switching to the next macrotick,
+// using the terms of flexray
+static volatile int32_t lastOverflow = 0;
+
+
 
 /**
  * @brief localTime - time of local clock
@@ -65,6 +80,7 @@ void Clock_Init(){
 
     // total time
     totalDuration = COUNTERVALUE40MS * UPDATE_RATE;
+    newTotalDuration = totalDuration;
 
 
     // Enable Interrupt
@@ -81,13 +97,35 @@ void Clock_Init(){
     TIM_Cmd(TIM4, ENABLE);
 }
 
+/**
+ * @brief Clock_calcMacrotickDuration
+ * Using the FlexRay clock synchronisation mechanismn to divide totalDuration in UPDATE_RATE
+ * Macroticks applying the correction value once every second.
+ * @return macrotick duration in number of timer clicks (input for timer compare register)
+ */
+static inline uint16_t Clock_calcMacrotickDuration(){
+    int32_t tmp = totalDuration + lastOverflow;
+    // assuming a division is faster in this case
+    int32_t divider = tmp / UPDATE_RATE;
 
+    int32_t remainder = tmp - (divider * UPDATE_RATE);
+    // < 0 not possible
+    // = 0 worked out perfect
+    if(remainder == 0){
+        lastOverflow = 0;
+        return (uint16_t) (divider);
+    }else{
+        // remainder > 0
+        lastOverflow = remainder - UPDATE_RATE;
+        return (uint16_t) (divider+1);
+    }
+}
 
 /**
  * Compare Interrupt
  */
 void TIM4_IRQHandler(void){
-    // reset
+    // reset counter
     TIM4->CNT = 0;
 
     // clear IRQ Status
@@ -99,8 +137,17 @@ void TIM4_IRQHandler(void){
     ++loops;
     if(loops == UPDATE_RATE){
         Clock_IncrementSecond();
+
+        // reset timing information for next 1 second round
         loops = 0;
+        totalDuration = newTotalDuration;
+        lastOverflow = 0;
+        currentCycleDuration = 0;
     }
+
+    // update timer compare register
+    currentCycleDuration += TIM4->CCR1;
+    TIM4->CCR1 = Clock_calcMacrotickDuration();
 
     // update visualization of clock
     updateVisualization(&localTime, loops, UPDATE_RATE);
