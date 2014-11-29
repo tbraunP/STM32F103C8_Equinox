@@ -169,7 +169,7 @@ void TIM4_IRQHandler(void){
         TIM4->CCR1 += lastCompareDuration;
 
         // update visualization of clock
-        updateVisualization(&localTime, loops, UPDATE_RATE_SEC);
+        updateVisualization(&localTime, (loops % UPDATE_RATE_SEC), UPDATE_RATE_SEC);
     }
 }
 
