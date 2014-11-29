@@ -278,14 +278,15 @@ static void DFC77_SyncRTC_Clock(){
 
     if(flags.dcf_sync){
         ++consecSync;
-        if(consecSync > 2){
-            Clock_Init();
-            UART_SendString("Starting Clock\n");
-        }
-    }else{
         if(clockStarted){
             Clock_Sync(&dcf);
+        }else{
+            if(consecSync > 2){
+                Clock_Init();
+                UART_SendString("Starting Clock\n");
+            }
         }
+    } else {
         consecSync = 0;
     }
 }
