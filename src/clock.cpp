@@ -16,6 +16,7 @@ static volatile int32_t totalDuration = 0;
 
 // new duration of whole cycle after correction in timer clicks
 static volatile int32_t newTotalDuration = 0;
+static volatile int32_t immediateCorrection = 0;
 
 // position in current cycle
 static volatile int32_t currentCycleDuration = 0;
@@ -36,6 +37,9 @@ static volatile struct DCF77_Time_t localTime;
 
 
 // forward declarations
+static void Clock_cloneDCF(volatile struct DCF77_Time_t*dest, volatile struct DCF77_Time_t* src);
+static void Clock_DecrementSecond(volatile struct DCF77_Time_t* time);
+
 static void Clock_IncrementSecond();
 static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint8_t loops, uint8_t MAXRATE);
 
@@ -104,7 +108,7 @@ void Clock_Init(){
  * @return macrotick duration in number of timer clicks (input for timer compare register)
  */
 static inline uint16_t Clock_calcMacrotickDuration(){
-    int32_t tmp = totalDuration + lastOverflow;
+    int32_t tmp = totalDuration + lastOverflow + immediateCorrection;
     // assuming a division is faster in this case
     int32_t divider = tmp / UPDATE_RATE;
 
@@ -143,6 +147,8 @@ void TIM4_IRQHandler(void){
         totalDuration = newTotalDuration;
         lastOverflow = 0;
         currentCycleDuration = 0;
+        immediateCorrection = 0; // only applied till next cycle/second starts, then
+        // newTotalDuration contains corrected value
     }
 
     // update timer compare register
@@ -177,4 +183,88 @@ static void Clock_IncrementSecond(){
 // tobe removed
 static void updateVisualization(volatile struct DCF77_Time_t* localTime, uint8_t loops, uint8_t MAXRATE){
 
+}
+
+/**
+ * @brief Clock_Sync
+ * Perform a resynchronisation between DCF77Clock and local clock
+ */
+void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
+    NVIC_DisableIRQ(TIM4_IRQn);
+    int32_t currentPos = TIM4->CNT + currentCycleDuration;
+    immediateCorrection = 0;
+
+    // store correction time
+    volatile struct DCF77_Time_t* correct = nullptr;
+    volatile struct DCF77_Time_t lTime;
+
+    // perform correction
+    if( currentPos >= totalDuration/2 ){
+        // if the local clock is to slow, we can use current pos as new length of the cycle,
+        // but we must also consider the remaining ticks until the overflow occures (calling Clock_IncrementSecond)
+        newTotalDuration = currentPos;
+        // but we start right now to apply our cycle change instead of waiting for the next round to start
+        immediateCorrection = -(totalDuration - currentPos);
+
+        // store corrected time
+        Clock_cloneDCF(&lTime, dcfTime);
+
+        // now decrement time by one second, to get the right time at next increment second call
+        Clock_DecrementSecond(&lTime);
+
+        // choose right correction
+        correct = &lTime;
+    } else {
+        // no we assume the local clock is too fast, and we have to increase the cycle length
+        newTotalDuration = totalDuration + currentPos;
+        // but we start right now to apply our cycle change instead of waiting for the next round to start
+        // so we modify the immediate correction to apply our changes
+        immediateCorrection = currentPos;
+
+        // choose right correction
+        correct = dcfTime;
+    }
+
+    // ok we update the local time
+    Clock_cloneDCF(&localTime, correct);
+
+
+    // reenable timing interrupt
+    NVIC_EnableIRQ(TIM4_IRQn);
+}
+
+/**
+ * @brief clone a time from src to dest
+ * @param dest
+ * @param src
+ */
+static void Clock_cloneDCF(volatile struct DCF77_Time_t*dest, volatile struct DCF77_Time_t* src){
+    dest->day = src->day;
+    dest->mon = src->mon;
+    dest->year = src->year;
+    dest->hh = src->hh;
+    dest->mm = src->mm;
+    dest->ss = src->ss;
+}
+
+/**
+ * @brief Clock_IncrementSecond
+ * decrement time
+ */
+static void Clock_DecrementSecond(volatile struct DCF77_Time_t* time){
+    time->ss--;//Addiere -1 zu Sekunden
+
+    // underflow causes wrap arround
+    if (localTime.ss > 60)
+    {
+        localTime.ss = 0;
+        localTime.mm--;//Addiere -1 zu Minuten
+        if (localTime.mm > 60) { // underflow causes wrap arround
+            localTime.mm = 0;
+            localTime.hh--;//Addiere -1 zu Stunden
+            if (localTime.hh > 24) { // underflow causes wrap arround
+                localTime.hh = 0;
+            }
+        }
+    }
 }

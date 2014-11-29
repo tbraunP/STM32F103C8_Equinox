@@ -37,6 +37,7 @@ static volatile bool h_hh = false;
 
 // some helper functions, forward declarations
 static void DFC77_AddSecond();
+static void DFC77_SyncRTC_Clock();
 
 
 static void DFC77_EXTI0_Config(){
@@ -234,7 +235,8 @@ void TIM2_IRQHandler(void){
         //Sekunden werden auf 0 zurückgesetzt
         dcf.ss = 59;
 
-        flags.dcf_sync = true;        //SyncRTC_Clock();
+        flags.dcf_sync = true;
+        DFC77_SyncRTC_Clock();
     } else {
         //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
         //manuell weiter
@@ -255,6 +257,13 @@ void TIM2_IRQHandler(void){
 }
 
 
+/**
+ * @brief DFC77_SyncRTC_Clock
+ * Perform a clock synchronisation
+ */
+static void DFC77_SyncRTC_Clock(){
+
+}
 
 
 static void DFC77_AddSecond (){

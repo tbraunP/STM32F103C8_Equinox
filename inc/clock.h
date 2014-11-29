@@ -14,6 +14,13 @@ void Clock_Init();
  */
 void TIM4_IRQHandler(void);
 
+/**
+ * @brief Clock_Sync
+ * @param dcfTime - new time
+ *
+ * perform local clock synchronisation
+ */
+void Clock_Sync(volatile struct DCF77_Time_t* dcfTime);
 
 #ifdef __cplusplus
  }
