@@ -15,6 +15,7 @@
 
 // length of current second cycle in timer click
 static volatile int32_t totalDuration = 0;
+static volatile uint16_t lastCompareDuration = COUNTERVALUE40MS;
 
 // new duration of whole cycle after correction in timer clicks
 static volatile int32_t newTotalDuration = 0;
@@ -25,6 +26,7 @@ static volatile int32_t currentCycleDuration = 0;
 
 // macrotick counter
 static volatile uint8_t loops = 0;
+
 
 // stores round overflow occuring by switching to the next macrotick,
 // using the terms of flexray
@@ -154,9 +156,10 @@ void TIM4_IRQHandler(void){
             // newTotalDuration contains corrected value
         }
 
-        // update timer compare register
-        currentCycleDuration += TIM4->CCR1;
-        TIM4->CCR1 += Clock_calcMacrotickDuration();
+        // update timer compare register and update duration of current cycle /second in ticks
+        currentCycleDuration += lastCompareDuration;
+        lastCompareDuration = Clock_calcMacrotickDuration();
+        TIM4->CCR1 += lastCompareDuration;
 
         // update visualization of clock
         updateVisualization(&localTime, loops, UPDATE_RATE);
