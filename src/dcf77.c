@@ -291,7 +291,7 @@ static void DFC77_SyncRTC_Clock(){
         }
     }else{
         consecSync = 0;
-        flags.dcf_sync_strong = true;
+        flags.dcf_sync_strong = false;
     }
 
     // start clock
