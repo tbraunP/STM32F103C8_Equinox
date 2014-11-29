@@ -120,7 +120,7 @@ void DFC77_init(){
 
 // Edge recognized
 void EXTI0_IRQHandler(void){
-
+    // local state values
     static uint32_t lastRisingEdge =0;
     static uint32_t timerValue = 0;
 
@@ -129,8 +129,8 @@ void EXTI0_IRQHandler(void){
 
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
-        // prevent reception errors (300ms before next rising edge)
-        if((timerValue - lastRisingEdge > 300)){
+        // prevent reception errors (1000us before next rising edge)
+        if((timerValue - lastRisingEdge > 1000)){
             lastRisingEdge = timerValue;
             flags.dcf_rx = true;
             //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
