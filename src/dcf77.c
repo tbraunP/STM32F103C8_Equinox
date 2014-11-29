@@ -93,6 +93,7 @@ static void DFC77_EXTI0_Config(){
     timerConfig.TIM_ClockDivision = 0;
     timerConfig.TIM_CounterMode = TIM_CounterMode_Up;
 
+
     TIM_TimeBaseInit(TIM2, &timerConfig);
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
     TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
@@ -129,7 +130,7 @@ void EXTI0_IRQHandler(void){
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
         // prevent reception errors (400ms before next rising edge)
-        if(timerValue - lastRisingEdge > 400){
+        if(timerValue - lastRisingEdge > 200 || lastRisingEdge == 0 ){
             lastRisingEdge = timerValue;
             flags.dcf_rx = true;
             //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
@@ -143,7 +144,7 @@ void EXTI0_IRQHandler(void){
         // store duration
         uint32_t duration = timerValue - lastRisingEdge;
         // sanity check to prevent disturbances
-        if(duration > 700 && duration < 3000){
+        if(duration > 500 && duration < 3000){
             // reset second overflow timer and restart
             {
                 TIM_Cmd(TIM2, DISABLE);
