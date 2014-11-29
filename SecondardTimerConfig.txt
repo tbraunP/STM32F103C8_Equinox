@@ -1,0 +1,18 @@
+Updaterate: 25 Frames /s
+Dauer eines Frames: 1s/25 = 40ms
+
+Compare Match ideal bei: 0xFF (16 Bit-Timer)
+
+0.04 / 0xFF = 156,86 us
+oder 
+1/ (0.04 / 0xFF)  = 6,375 kHz
+
+Prescaler:  72e6 / 6,375e3 = 11,2941e3  -> 0x2C1E
+
+-----------------
+
+Wähle Prescaler:  0x2C1E  und prüfe Ergebnisse
+1/(72e6 / 0x2C1E) = 156,861e-6 
+-> Zählerwert für 40 ms
+40000/156,861 = 255,004
+

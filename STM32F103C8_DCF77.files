@@ -99,3 +99,5 @@ src/systick.c
 inc/dcf_internal.h
 src/util/itoa.c
 inc/util/itoa.h
+src/clock.cpp
+inc/clock.h
