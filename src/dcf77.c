@@ -120,7 +120,8 @@ void DFC77_init(){
 // Edge recognized
 void EXTI0_IRQHandler(void){
 
-    static uint32_t lastEdge =0;
+    static uint32_t lastRisingEdge =0;
+    static uint32_t lastFallingEdge =0;
     static uint32_t timerValue = 0;
 
     // perform early readout
@@ -128,16 +129,21 @@ void EXTI0_IRQHandler(void){
 
     //rising edge
     if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)){
-        lastEdge = timerValue;
-        flags.dcf_rx = true;
-        //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
+        // prevent reception errors (400ms before next rising edge)
+        if(timerValue - lastRisingEdge > 400){
+            lastRisingEdge = timerValue;
+            flags.dcf_rx = true;
+            //UART_Send((const uint8_t*)"R_DCF\n\0", 6);
 
-        // short delay but who cares
-        DFC77_AddSecond();
-
+            // short delay but who cares
+            DFC77_AddSecond();
+        }
     } else {
+        // falling edge
+        lastFallingEdge = timerValue;
+
         // store duration
-        uint32_t duration = ((uint32_t) timerValue) - lastEdge;
+        uint32_t duration = ((uint32_t) timerValue) - lastRisingEdge;
         // sanity check to prevent disturbances
         if(duration > 700 && duration < 3000){
             // reset second overflow timer and restart
@@ -152,6 +158,8 @@ void EXTI0_IRQHandler(void){
 
                 TIM_Cmd(TIM2, ENABLE);
             }
+            // reset storage for last rising edge
+            lastRisingEdge = 0;
 
             //itoa(duration, str);
             //UART_Send((const uint8_t*)str, strlen(str));
