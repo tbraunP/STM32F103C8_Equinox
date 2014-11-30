@@ -5,3 +5,4 @@ cmake_install.cmake
 stm32f103Demo.map
 stm32f103Demo.bin
 stm32f103Demo.elf
+STM32F103C8.creator.user
