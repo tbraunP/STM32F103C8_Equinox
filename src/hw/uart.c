@@ -53,3 +53,12 @@ void UART_Send(const uint8_t* str, uint16_t len){
         USART1->DR = str[i];
     }
 }
+
+
+void UART_SendString(const char* str){
+    while(*str != '\0'){
+        while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+        USART1->DR = *str;
+        ++str;
+    }
+}
