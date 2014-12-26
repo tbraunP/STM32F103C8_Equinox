@@ -116,3 +116,12 @@ inc/dcf77/dcf_internal.h
 inc/stm32f10x_conf.h
 inc/stm32f10x_it.h
 inc/systick.h
+src/dcf77/dcf77.c
+src/hw/uart.c
+src/util/itoa.c
+src/clock.c
+src/main.c
+src/stm32f10x_it.c
+src/systick.c
+src/ledClock/clock.c
+inc/ledClock/clock.h

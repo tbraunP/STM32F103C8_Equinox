@@ -9,3 +9,6 @@ inc/hw
 src/hw
 src/util
 inc/util
+src/dcf77
+src/ledClock
+inc/ledClock

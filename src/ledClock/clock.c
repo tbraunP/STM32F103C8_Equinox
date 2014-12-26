@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "clock.h"
+#include "ledClock/clock.h"
 
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
@@ -9,9 +9,9 @@
 #include "dcf77/dcf77.h"
 
 // CONSTANTS
-#define     UPDATE_RATE_SEC         (25)
+#define     UPDATE_RATE_SEC         (25*2)
 #define     RATE_MIN                (60*UPDATE_RATE_SEC)
-#define     PRESCALER               (uint16_t) (0x2C1E)
+#define     PRESCALER               (uint16_t) (0x2C1E / 2)
 #define     COUNTERVALUE40MS        (uint16_t) (0xFF)
 #define     COUNTERVALUE40MS_2      (uint16_t) (COUNTERVALUE40MS/2)
 
@@ -134,7 +134,7 @@ static inline uint16_t Clock_calcMacrotickDuration(){
 }
 
 /**
- * Compare Interrupt
+ * Compare Interrupt, update the visualisation
  */
 void TIM4_IRQHandler(void){
     if(TIM_GetITStatus(TIM4, TIM_IT_CC1) == SET){
@@ -179,7 +179,9 @@ static void updateVisualization(volatile struct DCF77_Time_t* time, uint16_t loo
 
 /**
  * @brief Clock_Sync
- * Perform a resynchronisation between DCF77Clock and local clock
+ * Perform a resynchronisation between DCF77Clock and local clock,
+ * triggered by the rising edge of the dcf receiver (every second)
+ *
  */
 void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     NVIC_DisableIRQ(TIM4_IRQn);

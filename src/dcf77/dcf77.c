@@ -4,7 +4,7 @@
 
 #include "dcf77/dcf77.h"
 #include "dcf77/dcf_internal.h"
-#include "clock.h"
+#include "ledClock/clock.h"
 
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
