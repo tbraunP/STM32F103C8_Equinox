@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
-project(stm32f103Demo)
-SET(TARGET "stm32f103Demo")
+project(stm32f103Equinox)
+SET(TARGET "stm32f103Equinox")
 
 #custom command to use objcopy to create .bin files out of ELF files
 function(make_firmware INPUT)
