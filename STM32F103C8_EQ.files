@@ -125,3 +125,10 @@ src/stm32f10x_it.c
 src/systick.c
 src/ledClock/clock.c
 inc/ledClock/clock.h
+inc/ws2812/ws2812.h
+inc/ws2812/ws2812.h
+src/ws2812/ws2812.c
+inc/ws2812/colors.h
+src/ws2812/colors.c
+inc/ledClock/animator.h
+src/ledClock/animator.c

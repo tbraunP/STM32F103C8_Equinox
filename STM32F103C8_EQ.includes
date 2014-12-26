@@ -12,3 +12,5 @@ inc/util
 src/dcf77
 src/ledClock
 inc/ledClock
+inc/ws2812
+src/ws2812

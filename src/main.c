@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "hw/uart.h"
+#include "ledClock/animator.h"
 #include "util/itoa.h"
 
 #include "dcf77/dcf77.h"
@@ -35,11 +36,16 @@ void printTime(int hh, int mm, int ss){
 
 int main(void)
 {
+    // run uart for debug output
+    UART_init();
+
     // Enable systick
     SysTick_init();
 
-    // run uart
-    UART_init();
+
+    // start WS2812 and disable display
+    WS2812_Init();
+    WS2812_clear();
 
     //Clock_Init();
 
