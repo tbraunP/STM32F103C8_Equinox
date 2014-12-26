@@ -8,3 +8,7 @@ stm32f103Demo.elf
 STM32F103C8_DCF77.creator.user
 STM32F103C8.creator.user
 STM32F103C8_EQ.creator.user
+stm32f103Equinox.bin
+stm32f103Equinox.elf
+stm32f103Equinox.map
+*.autosave
