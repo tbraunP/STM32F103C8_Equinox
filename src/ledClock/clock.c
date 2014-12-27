@@ -42,7 +42,10 @@ volatile struct DCF77_Time_t clockTime;
  * @brief Clock_Init
  * Initialize local timer for clock visualization
  */
-void Clock_Init(){
+void Clock_Init(volatile struct DCF77_Time_t* dcfTime){
+    //clone time
+    DFC77_cloneDCF(&clockTime, dcfTime);
+
     // Timer configuration
     TIM_TimeBaseInitTypeDef timerConfig;
     TIM_OCInitTypeDef TIM_OCInitStructure;

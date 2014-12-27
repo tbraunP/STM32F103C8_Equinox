@@ -14,7 +14,7 @@ extern volatile struct DCF77_Time_t clockTime;
  * @brief Clock_Init
  * Local clock
  */
-void Clock_Init();
+void Clock_Init(volatile struct DCF77_Time_t* dcfTime);
 
 /*
  * Compare Interrupt

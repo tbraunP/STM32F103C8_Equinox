@@ -300,7 +300,7 @@ static void DFC77_SyncRTC_Clock(){
             Clock_Sync(&dcf);
             UART_SendString("DCF77 Resync\n");
         }else{
-            Clock_Init();
+            Clock_Init(&dcf);
             UART_SendString("Starting visual Clock\n");
             clockStarted = true;
         }
