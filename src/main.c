@@ -50,9 +50,7 @@ int main(void)
     DFC77_init();
 
     // send welcome message
-    const char str[] = "Welcome to STM32F103 DCF77\n\0";
-    uint16_t len  = (uint16_t) strlen(str);
-    UART_Send((uint8_t*) str, len);
+    UART_SendString("Welcome to STM32F103 Equinox\n\0");
 
     static int i = 0;
     static int oldss = -1;
