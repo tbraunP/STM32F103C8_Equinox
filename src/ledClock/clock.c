@@ -151,7 +151,9 @@ void TIM4_IRQHandler(void){
 
         if(loops % UPDATE_RATE_SEC == 0){
             DCF77_incrementTime(&clockTime);
+#if 0
             UART_SendString("S\n\0");
+#endif
         }
 
         // update timer compare register and update duration of current cycle /second in ticks

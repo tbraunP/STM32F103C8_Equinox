@@ -5,7 +5,7 @@ SET(TARGET "stm32f103Equinox")
 #custom command to use objcopy to create .bin files out of ELF files
 function(make_firmware INPUT)
               add_custom_command(TARGET ${INPUT}
-                      COMMAND arm-unknown-eabi-objcopy -O binary ${INPUT} ${TARGET}.bin
+                      COMMAND arm-none-eabi-objcopy -O binary ${INPUT} ${TARGET}.bin
                       COMMENT "objcopying to make mbed compatible firmware")
               set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${TARGET}.bin)
 endfunction(make_firmware)
@@ -17,14 +17,14 @@ SET(CMAKE_SYSTEM_NAME Generic)
 SET(CMAKE_SYSTEM_VERSION 1)
 
 # specify the cross compiler
-CMAKE_FORCE_C_COMPILER(arm-unknown-eabi-gcc GNU)
-CMAKE_FORCE_CXX_COMPILER(arm-unknown-eabi-g++ GNU)
+CMAKE_FORCE_C_COMPILER(arm-none-eabi-gcc GNU)
+CMAKE_FORCE_CXX_COMPILER(arm-none-eabi-g++ GNU)
  
-find_program(LINKER arm-unknown-eabi-ld)
-find_program(OBJCOPY arm-unknown-eabi-objcopy)
-find_program(OBJDUMP arm-unknown-eabi-objdump)
-SET(CMAKE_AR arm-unknown-eabi-ar)
-SET(CMAKE_RANLIB arm-unknown-eabi-ranlib)
+find_program(LINKER arm-none-eabi-ld)
+find_program(OBJCOPY arm-none-eabi-objcopy)
+find_program(OBJDUMP arm-none-eabi-objdump)
+SET(CMAKE_AR arm-none-eabi-ar)
+SET(CMAKE_RANLIB arm-none-eabi-ranlib)
 
 # Set compiler and linker options
 SET(LIBS_FLAG "-DHSE_VALUE=8000000 -DSTM32F103C8 -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -g") 

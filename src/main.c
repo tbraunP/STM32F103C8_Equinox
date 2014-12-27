@@ -60,7 +60,7 @@ int main(void)
 
 
         // print dcf
-        volatile struct DCF77_Time_t* time = &clockTime;
+        volatile struct DCF77_Time_t* time = &dcf;
 
         int ss = time->ss;
         int mm = time->mm;

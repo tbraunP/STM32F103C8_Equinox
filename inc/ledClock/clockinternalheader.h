@@ -7,9 +7,9 @@
 #endif
 
 // CONSTANTS
-#define     UPDATE_RATE_SEC         (25*2)
+#define     UPDATE_RATE_SEC         (25)
 #define     RATE_MIN                (60*UPDATE_RATE_SEC)
-#define     PRESCALER               (uint16_t) (0x2C1E/2)
+#define     PRESCALER               (uint16_t) (0x2C1E)
 #define     COUNTERVALUE40MS        (uint16_t) (0xFF)
 #define     COUNTERVALUE40MS_2      (uint16_t) (COUNTERVALUE40MS/2)
 
