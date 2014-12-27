@@ -7,13 +7,8 @@
 #include "hw/uart.h"
 #include "util/itoa.h"
 #include "dcf77/dcf77.h"
+#include "clockinternalheader.h"
 
-// CONSTANTS
-#define     UPDATE_RATE_SEC         (25*2)
-#define     RATE_MIN                (60*UPDATE_RATE_SEC)
-#define     PRESCALER               (uint16_t) (0x2C1E / 2)
-#define     COUNTERVALUE40MS        (uint16_t) (0xFF)
-#define     COUNTERVALUE40MS_2      (uint16_t) (COUNTERVALUE40MS/2)
 
 // length of current second cycle in timer click
 static volatile int64_t totalDuration = 0;
