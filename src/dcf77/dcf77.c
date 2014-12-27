@@ -90,7 +90,7 @@ static void DFC77_EXTI0_Config(){
     /* Compute the prescaler value for 10 KHz -> 10000 * 10 KHz = 1 s */
     uint16_t prescaler = (uint16_t) (SystemCoreClock / 10000);
     /* Time base configuration */
-    timerConfig.TIM_Period = (11500);
+    timerConfig.TIM_Period = (11550);
     timerConfig.TIM_Prescaler = prescaler-1;
     timerConfig.TIM_ClockDivision = 0;
     timerConfig.TIM_CounterMode = TIM_CounterMode_Up;
@@ -125,6 +125,9 @@ void EXTI0_IRQHandler(void){
     // local state values
     static uint32_t lastRisingEdge =0;
     static uint32_t timerValue = 0;
+
+    // disable timer interrupt
+    NVIC_DisableIRQ(TIM2_IRQn);
 
     // perform early readout
     timerValue = (uint32_t) TIM2->CNT;
@@ -202,6 +205,10 @@ void EXTI0_IRQHandler(void){
             ++rx_bit_counter;
         }
     }
+
+    // reenable timer interrupt
+    NVIC_EnableIRQ(TIM2_IRQn);
+
     // clear interrupt
     EXTI_ClearITPendingBit(EXTI_Line0);
     NVIC_ClearPendingIRQ(EXTI0_IRQn);
@@ -211,69 +218,78 @@ void EXTI0_IRQHandler(void){
  * Overflow Interrupt wird ausgelöst bei 59Sekunde oder fehlenden DCF77 Signal
  */
 void TIM2_IRQHandler(void){
-    // clear IRQ Status
-    TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-    NVIC_ClearPendingIRQ(TIM2_IRQn);
+    // Disable other interrupt which may mess up everything
+    NVIC_DisableIRQ(EXTI0_IRQn);
 
-    // Perform Update
-    // DCF bit buffer
-    struct DCF77_Bits_t* rx_buffer = (struct DCF77_Bits_t*)&dcf_rx_buffer;
+    // and check if interrupt condition still holds
+    if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET){
+        // clear IRQ Status
+        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+        NVIC_ClearPendingIRQ(TIM2_IRQn);
 
-    //wurden alle 59 Bits empfangen und sind die Paritys richtig?
-    if (rx_bit_counter == 59 &&
-            flags.parity_P1 == rx_buffer->P1 &&
-            flags.parity_P2 == rx_buffer->P2 &&
-            flags.parity_P3 == rx_buffer->P3){
-        //Alle 59Bits empfangen stellen der Uhr nach DCF77 Buffer
-        //Berechnung der Minuten BCD to HEX
-        dcf.mm = rx_buffer->Min-((rx_buffer->Min/16)*6);
+        // Perform Update
+        // DCF bit buffer
+        struct DCF77_Bits_t* rx_buffer = (struct DCF77_Bits_t*)&dcf_rx_buffer;
 
-        if (dcf.mm != 0){
-            dcf.mm--;
+        //wurden alle 59 Bits empfangen und sind die Paritys richtig?
+        if (rx_bit_counter == 59 &&
+                flags.parity_P1 == rx_buffer->P1 &&
+                flags.parity_P2 == rx_buffer->P2 &&
+                flags.parity_P3 == rx_buffer->P3){
+            //Alle 59Bits empfangen stellen der Uhr nach DCF77 Buffer
+            //Berechnung der Minuten BCD to HEX
+            dcf.mm = rx_buffer->Min-((rx_buffer->Min/16)*6);
+
+            if (dcf.mm != 0){
+                dcf.mm--;
+            } else {
+                dcf.mm = 59;
+                h_hh = true;
+            }
+
+            //Berechnung der Stunden BCD to HEX
+            dcf.hh = rx_buffer->Hour-((rx_buffer->Hour/16)*6);
+
+            // hour correction
+            if (h_hh) {
+                dcf.hh--;
+                h_hh = false;
+            }
+
+            //Berechnung des Tages BCD to HEX
+            dcf.day= rx_buffer->Day-((rx_buffer->Day/16)*6);
+            //Berechnung des Monats BCD to HEX
+            dcf.mon= rx_buffer->Month-((rx_buffer->Month/16)*6);
+            //Berechnung des Jahres BCD to HEX
+            dcf.year= 2000 + rx_buffer->Year-((rx_buffer->Year/16)*6);
+            //Sekunden werden auf 0 zurückgesetzt
+            dcf.ss = 59;
+
+            flags.dcf_sync = true;
         } else {
-            dcf.mm = 59;
-            h_hh = true;
+            //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
+            //manuell weiter
+            UART_SendString("Sync fehlgeschlagen...\n");
+            DCF77_incrementTime(&dcf);
+
+            flags.dcf_sync = false;
+            flags.dcf_rx = false;
         }
+        // clock update, flags.dcf_sync indiacted sync
+        DFC77_SyncRTC_Clock();
 
-        //Berechnung der Stunden BCD to HEX
-        dcf.hh = rx_buffer->Hour-((rx_buffer->Hour/16)*6);
+        //zurücksetzen des RX Bit Counters
+        rx_bit_counter = 0;
 
-        // hour correction
-        if (h_hh) {
-            dcf.hh--;
-            h_hh = false;
-        }
+        //Löschen des Rx Buffers
+        dcf_rx_buffer = 0;
 
-        //Berechnung des Tages BCD to HEX
-        dcf.day= rx_buffer->Day-((rx_buffer->Day/16)*6);
-        //Berechnung des Monats BCD to HEX
-        dcf.mon= rx_buffer->Month-((rx_buffer->Month/16)*6);
-        //Berechnung des Jahres BCD to HEX
-        dcf.year= 2000 + rx_buffer->Year-((rx_buffer->Year/16)*6);
-        //Sekunden werden auf 0 zurückgesetzt
-        dcf.ss = 59;
+        // Enable
+        NVIC_EnableIRQ(EXTI0_IRQn);
 
-        flags.dcf_sync = true;
-    } else {
-        //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
-        //manuell weiter
-        UART_SendString("Sync fehlgeschlagen...\n");
-        DCF77_incrementTime(&dcf);
-
-        flags.dcf_sync = false;
-        flags.dcf_rx = false;
+        // DEBUG
+        //UART_Send((const uint8_t*)"TIMER Second 59\n\0", 16);
     }
-    // clock update, flags.dcf_sync indiacted sync
-    DFC77_SyncRTC_Clock();
-
-    //zurücksetzen des RX Bit Counters
-    rx_bit_counter = 0;
-
-    //Löschen des Rx Buffers
-    dcf_rx_buffer = 0;
-
-    // DEBUG
-    //UART_Send((const uint8_t*)"TIMER Second 59\n\0", 16);
 }
 
 
@@ -297,14 +313,16 @@ static void DFC77_SyncRTC_Clock(){
     }
 
     // start clock
-    if(flags.dcf_sync_strong && flags.dcf_sync){
+    if(flags.dcf_sync){
         if(clockStarted){
             Clock_Sync(&dcf);
             UART_SendString("DCF77 Resync\n");
         }else{
-            Clock_Init(&dcf);
-            UART_SendString("Starting visual Clock\n");
-            clockStarted = true;
+            if(flags.dcf_sync_strong){
+                Clock_Init(&dcf);
+                UART_SendString("Starting visual Clock\n");
+                clockStarted = true;
+            }
         }
     }
 }

@@ -34,9 +34,11 @@ void printTime(int hh, int mm, int ss){
     UART_SendString("\n\0");
 }
 
-
 int main(void)
 {
+    // no preemption
+    NVIC_SetPriorityGrouping(7);
+
     // run uart for debug output
     UART_init();
 
