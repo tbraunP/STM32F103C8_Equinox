@@ -298,6 +298,7 @@ static void DFC77_SyncRTC_Clock(){
     if(flags.dcf_sync_strong && flags.dcf_sync){
         if(clockStarted){
             Clock_Sync(&dcf);
+            UART_SendString("DCF77 Resync\n");
         }else{
             Clock_Init();
             UART_SendString("Starting visual Clock\n");

@@ -66,7 +66,7 @@ int main(void)
         int mm = time->mm;
         int hh = time->hh;
 
-        if(i++ > 5000){
+        if(i++ > 50000){
             // only print if changed
             if(oldss == ss)
                 continue;
