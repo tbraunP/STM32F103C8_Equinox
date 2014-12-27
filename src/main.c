@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "hw/uart.h"
+#include "ws2812/ws2812.h"
 #include "ledClock/animator.h"
 #include "util/itoa.h"
 
@@ -65,7 +66,7 @@ int main(void)
         int mm = time->mm;
         int hh = time->hh;
 
-        if(i++ > 50000){
+        if(i++ > 5000){
             // only print if changed
             if(oldss == ss)
                 continue;
