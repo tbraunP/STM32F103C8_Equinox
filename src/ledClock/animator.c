@@ -37,7 +37,7 @@ static HSV_T hsvStripe[LED];
 
 #if 0
 /**
- * Compare Interrupt
+ * Compare Interrupt - dummy handler demo for local counter
  */
 void TIM4_IRQHandler(void){
     if(TIM_GetITStatus(TIM4, TIM_IT_CC1) == SET){
@@ -179,8 +179,13 @@ void updateVisualization(uint16_t hours, uint16_t minutes, uint16_t seconds, uin
 
     // Stundenanimation
     ANIM_LED_t hoursAnimation;
+#if TWENTYFOURMOD
+    aniSteps = RATE_MIN * 60 * 24; // 12 hours display
+    clk = (hours % 24) * RATE_MIN * 60 * 24 + clk;
+#else
     aniSteps = RATE_MIN * 60 * 12; // 12 hours display
     clk = (hours % 12) * RATE_MIN * 60 * 12 + clk;
+#endif
     calcLED(aniSteps, clk, &hoursAnimation);
 
 
