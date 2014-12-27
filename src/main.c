@@ -54,25 +54,23 @@ int main(void)
     UART_SendString("Welcome to STM32F103 Equinox\n\0");
 
     static int i = 0;
-    static int oldss = -1;
+    static int oldss1 = -1;
+    static int oldss2 = -1;
 
     while(1) {
-
-
-        // print dcf
-        volatile struct DCF77_Time_t* time = &dcf;
-
-        int ss = time->ss;
-        int mm = time->mm;
-        int hh = time->hh;
-
         if(i++ > 50000){
             // only print if changed
-            if(oldss == ss)
-                continue;
+            if(oldss1 != clockTime.ss){
+                UART_SendString("EQ: ");
+                printTime(clockTime.hh, clockTime.mm, clockTime.ss);
+                oldss1 = clockTime.ss;
+            }
 
-            printTime(hh, mm, ss);
-            oldss = ss;
+            if(oldss2 != dcf.ss){
+                UART_SendString("DCF77: ");
+                printTime(dcf.hh, dcf.mm, dcf.ss);
+                oldss2 = dcf.ss;
+            }
 
             i=0;
         }
