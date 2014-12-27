@@ -17,7 +17,7 @@
  */
 
 //static char str[200];
-#define STRONG_SYNC (0)
+#define STRONG_SYNC (2)
 
 // external visible struct
 volatile struct DCF77_Time_t dcf;
