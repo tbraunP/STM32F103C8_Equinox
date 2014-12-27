@@ -55,12 +55,13 @@ int main(void)
     // send welcome message
     UART_SendString("Welcome to STM32F103 Equinox\n\0");
 
-    static int i = 0;
+    static volatile int i = 0;
     static int oldss1 = -1;
     static int oldss2 = -1;
 
     while(1) {
         if(i++ > 50000){
+#if 0
             // only print if changed
             if(oldss1 != clockTime.ss){
                 UART_SendString("EQ: ");
@@ -73,7 +74,7 @@ int main(void)
                 printTime(dcf.hh, dcf.mm, dcf.ss);
                 oldss2 = dcf.ss;
             }
-
+#endif
             i=0;
         }
     }

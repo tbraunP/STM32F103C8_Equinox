@@ -19,7 +19,7 @@
  */
 
 //static char str[200];
-#define STRONG_SYNC (2)
+#define STRONG_SYNC (0)
 
 // external visible struct
 volatile struct DCF77_Time_t dcf;
@@ -90,7 +90,7 @@ static void DFC77_EXTI0_Config(){
     /* Compute the prescaler value for 10 KHz -> 10000 * 10 KHz = 1 s */
     uint16_t prescaler = (uint16_t) (SystemCoreClock / 10000);
     /* Time base configuration */
-    timerConfig.TIM_Period = (11550);
+    timerConfig.TIM_Period = (11750);
     timerConfig.TIM_Prescaler = prescaler-1;
     timerConfig.TIM_ClockDivision = 0;
     timerConfig.TIM_CounterMode = TIM_CounterMode_Up;
@@ -284,12 +284,11 @@ void TIM2_IRQHandler(void){
         //Löschen des Rx Buffers
         dcf_rx_buffer = 0;
 
-        // Enable
-        NVIC_EnableIRQ(EXTI0_IRQn);
-
         // DEBUG
         //UART_Send((const uint8_t*)"TIMER Second 59\n\0", 16);
     }
+    // Enable
+    NVIC_EnableIRQ(EXTI0_IRQn);
 }
 
 
