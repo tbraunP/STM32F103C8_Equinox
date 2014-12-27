@@ -8,6 +8,8 @@
 #include "ws2812/ws2812.h"
 #include "ws2812/colors.h"
 
+#include "nvicpriorities.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -42,6 +44,7 @@ static void WS2812_ReInit_PWM(){
     static bool firstRun = true;
     static TIM_TimeBaseInitTypeDef timConfig;
     static TIM_OCInitTypeDef TIM_OCInitStructure;
+    static NVIC_InitTypeDef NVIC_InitStructure;
 
     // Reset configuration NECESSARY for Reconfiguration
     TIM_DeInit(TIM3);
@@ -79,6 +82,12 @@ static void WS2812_ReInit_PWM(){
         dmaConfig.DMA_MemoryBaseAddr = (uint32_t) ledBuffer;
         dmaConfig.DMA_BufferSize = (uint32_t) (2*LEDBUFFSIZE);
 
+        // configure DMA finish interrupt
+        NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel6_IRQn;
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_DMA_PreemptionPriority;
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = NVIC_DMA_SubPriority;
+        NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
         // configure only once
         firstRun = false;
     }
@@ -97,7 +106,7 @@ static void WS2812_ReInit_PWM(){
     DMA_ITConfig(DMA1_Channel6, DMA_IT_TC, ENABLE);
 
     NVIC_ClearPendingIRQ(DMA1_Channel6_IRQn);
-    NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+    NVIC_Init(&NVIC_InitStructure);
 }
 
 /**

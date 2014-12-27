@@ -11,6 +11,7 @@
 #include "ledClock/clockinternalheader.h"
 #include "ledClock/animator.h"
 
+#include "nvicpriorities.h"
 
 // length of current second cycle in timer click
 static volatile int64_t totalDuration = 0;
@@ -88,8 +89,8 @@ void Clock_Init(volatile struct DCF77_Time_t* dcfTime){
 
     // Enable Interrupt
     NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_TIM4_PreemptionPriority;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = NVIC_TIM4_SubPriority;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
     // reset interrupt

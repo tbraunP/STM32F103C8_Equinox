@@ -181,10 +181,10 @@ void updateVisualization(uint16_t hours, uint16_t minutes, uint16_t seconds, uin
     ANIM_LED_t hoursAnimation;
 #if TWENTYFOURMOD
     aniSteps = RATE_MIN * 60 * 24; // 12 hours display
-    clk = (hours % 24) * RATE_MIN * 60 * 24 + clk;
+    clk = (hours % 24) * RATE_MIN * 60 + clk;
 #else
     aniSteps = RATE_MIN * 60 * 12; // 12 hours display
-    clk = (hours % 12) * RATE_MIN * 60 * 12 + clk;
+    clk = (hours % 12) * RATE_MIN * 60 + clk;
 #endif
     calcLED(aniSteps, clk, &hoursAnimation);
 

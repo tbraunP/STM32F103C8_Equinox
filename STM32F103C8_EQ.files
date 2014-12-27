@@ -135,3 +135,4 @@ src/ledClock/animator.c
 inc/ledClock/clockinternalheader.h
 src/util/max.c
 inc/util/max.h
+inc/nvicpriorities.h

@@ -11,6 +11,8 @@
 #include "hw/uart.h"
 #include "util/itoa.h"
 
+#include "nvicpriorities.h"
+
 /*
  * Thanks to Ulrich Radig for sharing his code on http://www.mikrocontroller.net/attachment/110549/clock.c
  * which has been adopted to the Cortex M3.
@@ -71,8 +73,8 @@ static void DFC77_EXTI0_Config(){
 
     /* Enable and set EXTI0 Interrupt to the lowest priority */
     NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0E;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0E;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_EXTI_PreemptionPriority;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = NVIC_EXTI_SubPriority;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
     // reset interrupt
@@ -100,8 +102,8 @@ static void DFC77_EXTI0_Config(){
 
     // Enable Interrupt
     NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_TIM2_PreemptionPriority;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = NVIC_TIM2_SubPriority;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
     // reset interrupt
