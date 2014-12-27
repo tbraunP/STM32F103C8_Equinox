@@ -2,6 +2,9 @@
 #define CLOCKINTERNALHEADER_H
 #include <stdint.h>
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 // CONSTANTS
 #define     UPDATE_RATE_SEC         (25*2)
@@ -21,6 +24,10 @@
 // 0..100
 #define MAX_BRIGHTNESS              (20)
 
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif // CLOCKINTERNALHEADER_H
 

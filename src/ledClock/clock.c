@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "ledClock/clock.h"
 
 #include "stm32f10x_conf.h"
@@ -7,7 +8,8 @@
 #include "hw/uart.h"
 #include "util/itoa.h"
 #include "dcf77/dcf77.h"
-#include "clockinternalheader.h"
+#include "ledClock/clockinternalheader.h"
+#include "ledClock/animator.h"
 
 
 // length of current second cycle in timer click
@@ -35,9 +37,6 @@ static volatile int64_t lastOverflow = 0;
  */
 volatile struct DCF77_Time_t clockTime;
 
-
-// forward declarations
-static void updateVisualization(volatile struct DCF77_Time_t* time, uint16_t loops, uint16_t MAXRATE);
 
 /**
  * @brief Clock_Init
@@ -162,20 +161,15 @@ void TIM4_IRQHandler(void){
         TIM4->CCR1 += lastCompareDuration;
 
         // update visualization of clock
-        updateVisualization(&clockTime, (loops % UPDATE_RATE_SEC), UPDATE_RATE_SEC);
+        updateVisualization(clockTime.hh, clockTime.mm, clockTime.ss, (loops % UPDATE_RATE_SEC));
     }
 }
 
 
-// tobe removed
-static void updateVisualization(volatile struct DCF77_Time_t* time, uint16_t loops, uint16_t MAXRATE){
-
-}
-
 /**
  * @brief Clock_Sync
  * Perform a resynchronisation between DCF77Clock and local clock,
- * triggered by the rising edge of the dcf receiver (every second)
+ * triggered by the minute overflow
  *
  */
 void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){

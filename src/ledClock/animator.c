@@ -1,15 +1,14 @@
-#include "animator.h"
-
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "ledClock/animator.h"
 #include "stm32f10x_conf.h"
 #include "stm32f10x.h"
 
 #include "hw/uart.h"
 #include "ws2812/ws2812.h"
-#include "clockinternalheader.h"
-
+#include "ledClock/clockinternalheader.h"
+#include "util/max.h"
 
 
 // macrotick counter
@@ -17,6 +16,7 @@ static volatile uint16_t loops = 0;
 static volatile uint8_t seconds = 0;
 static volatile uint8_t minutes = 0;
 static volatile uint8_t hours = 0;
+
 
 /**
  * data structure for animation (2 leds + brightness)
@@ -30,14 +30,12 @@ typedef struct ANIM_LED_t{
     float lightUpLED, lightUpLEDNext;
 } ANIM_LED_t;
 
-// forward declarations
-static void updateVisualization(uint16_t hours, uint16_t minutes, uint16_t seconds, uint16_t posInSecond);
 
 // RGB structure to draw on
 static RGB_T rgbStripe[LED];
 static HSV_T hsvStripe[LED];
 
-
+#if 0
 /**
  * Compare Interrupt
  */
@@ -80,6 +78,7 @@ void TIM4_IRQHandler(void){
         updateVisualization(hours, minutes, seconds, (loops % UPDATE_RATE_SEC));
     }
 }
+#endif
 
 /**
  * @brief calcLED
@@ -112,21 +111,6 @@ static void calcLED(uint32_t totalAnimationSteps, uint32_t relPosition, ANIM_LED
     animation->lightUpLEDNext = 1 - animation->lightUpLED;
 }
 
-
-/**
- * @brief max
- * If criterion is fullfilled return max(first, second) else first
- * @param criterion - criterion
- * @param first - first element (standard if criterion not fullfilled)
- * @param second - second element
- * @return If criterion is fullfilled return max(first, second) else first
- */
-static float max(bool criterion, float first, float second){
-    if(criterion){
-        return ((first > second) ? first : second);
-    }
-    return first;
-}
 
 /**
  * @brief mergeColorsForPixel
@@ -177,7 +161,7 @@ static void mergeColors(ANIM_LED_t* hours, ANIM_LED_t* minutes, ANIM_LED_t* seco
 }
 
 
-static void updateVisualization(uint16_t hours, uint16_t minutes, uint16_t seconds, uint16_t posInSecond){
+void updateVisualization(uint16_t hours, uint16_t minutes, uint16_t seconds, uint16_t posInSecond){
     uint32_t aniSteps = RATE_MIN;
     uint32_t clk = seconds * UPDATE_RATE_SEC + posInSecond;
 
