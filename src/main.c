@@ -42,13 +42,11 @@ int main(void)
     // Enable systick
     SysTick_init();
 
-
     // start WS2812 and disable display
     WS2812_Init();
     WS2812_clear();
 
-    //Clock_Init();
-
+    // DCF77 activate
     DFC77_init();
 
     // send welcome message
