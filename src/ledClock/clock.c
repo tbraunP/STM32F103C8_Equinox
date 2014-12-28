@@ -176,9 +176,10 @@ void TIM4_IRQHandler(void){
  * @brief Clock_Sync
  * Perform a resynchronisation between DCF77Clock and local clock,
  * triggered by the minute overflow
- *
+ * @param dcfTime - current time
+ * @param failed - number of consecutive failed syncs (0 if syncs are consecutive, i.e. every minute)
  */
-void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
+void Clock_Sync(volatile struct DCF77_Time_t* dcfTime, uint8_t failed){
     NVIC_DisableIRQ(TIM4_IRQn);
     int64_t currentPos = (TIM4->CNT - previousCompareRegisterValue) + currentCycleDuration;
     immediateCorrection = 0;
@@ -193,6 +194,9 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
     if( currentPos >= totalDuration/2 ){
         // if the local clock is to slow, we can use current pos as new length of the cycle,
         // but we must also consider the remaining ticks until the overflow occures (calling Clock_IncrementSecond)
+
+        // currentPos is delay summed up over failed+1 minutes
+        currentPos = currentPos / (failed+1);
         newTotalDuration = (totalDuration + currentPos)/2;
 
         // but we start right now to apply our cycle change instead of waiting for the next round to start
@@ -208,6 +212,10 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime){
         correct = &lTime;
     } else {
         // no we assume the local clock is too fast, and we have to increase the cycle length
+
+        // currentPos is delay summed up over failed+1 minutes
+        currentPos = currentPos / (failed+1);
+
         newTotalDuration = totalDuration + (currentPos/2);
         // but we start right now to apply our cycle change instead of waiting for the next round to start
         // so we modify the immediate correction to apply our changes

@@ -23,11 +23,12 @@ void TIM4_IRQHandler(void);
 
 /**
  * @brief Clock_Sync
- * @param dcfTime - new time
- *
- * perform local clock synchronisation
+ * Perform a resynchronisation between DCF77Clock and local clock,
+ * triggered by the minute overflow
+ * @param dcfTime - current time
+ * @param failed - number of consecutive failed syncs (0 if syncs are consecutive, i.e. every minute)
  */
-void Clock_Sync(volatile struct DCF77_Time_t* dcfTime);
+void Clock_Sync(volatile struct DCF77_Time_t* dcfTime, uint8_t failed);
 
 #ifdef __cplusplus
  }

@@ -38,6 +38,9 @@ static volatile struct DCF_Flags_t flags;
 
 static volatile bool h_hh = false;
 
+// number of consecutive failed syncs
+static volatile uint8_t consecFailedSyncs = 0;
+
 
 // some helper functions, forward declarations
 static void DFC77_SyncRTC_Clock();
@@ -266,11 +269,13 @@ void TIM2_IRQHandler(void){
             dcf.ss = 59;
 
             flags.dcf_sync = true;
+            consecFailedSyncs = 0;
         } else {
             //nicht alle 59Bits empfangen bzw kein DCF77 Signal Uhr läuft
             //manuell weiter
             UART_SendString("Sync fehlgeschlagen...\n");
             DCF77_incrementTime(&dcf);
+            ++consecFailedSyncs;
 
             flags.dcf_sync = false;
             flags.dcf_rx = false;
@@ -314,7 +319,7 @@ static void DFC77_SyncRTC_Clock(){
     // start clock
     if(flags.dcf_sync){
         if(clockStarted){
-            Clock_Sync(&dcf);
+            Clock_Sync(&dcf, consecFailedSyncs);
             UART_SendString("DCF77 Resync\n");
         }else{
             if(flags.dcf_sync_strong){
