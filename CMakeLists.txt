@@ -32,7 +32,7 @@ SET(COMMON_FLAGS "-O0 -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-section
 SET(CMAKE_CXX_FLAGS "${COMMON_FLAGS}  -fno-rtti  -fno-exceptions -std=gnu++0x")
 SET(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99")
 
-SET(CMAKE_EXE_LINKER_FLAGS "-mcpu=cortex-m3  -mthumb -mfloat-abi=soft -lm -Wl,-Map=${TARGET}.map,--cref -Wl,--gc-sections \"-T${CMAKE_SOURCE_DIR}/stm32f103_flash.ld\" -static")
+SET(CMAKE_EXE_LINKER_FLAGS "-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -lm -Wl,-Map=${TARGET}.map,--cref -Wl,--gc-sections \"-T${CMAKE_SOURCE_DIR}/stm32f103_flash.ld\" -static")
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${TARGET}.map)
 
 #remove -rdynamic to link static
