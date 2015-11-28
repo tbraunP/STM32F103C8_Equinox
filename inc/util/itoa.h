@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-char* itoa(int i, char b[]);
+char* m_itoa(int i, char b[]);
 
 #ifdef __cplusplus
 }

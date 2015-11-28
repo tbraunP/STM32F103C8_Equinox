@@ -21,15 +21,15 @@
 void printTime(int hh, int mm, int ss){
     // print time the ugly way
     static char str[100];
-    itoa(hh, str);
+    m_itoa(hh, str);
     UART_SendString(str);
     UART_SendString(":\0");
 
-    itoa(mm, str);
+    m_itoa(mm, str);
     UART_SendString(str);
     UART_SendString(":\0");
 
-    itoa(ss, str);
+    m_itoa(ss, str);
     UART_SendString(str);
     UART_SendString("\n\0");
 }

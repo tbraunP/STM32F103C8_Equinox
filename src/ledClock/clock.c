@@ -232,13 +232,13 @@ void Clock_Sync(volatile struct DCF77_Time_t* dcfTime, uint8_t failed){
 
     // print correction value
     char str[100];
-    itoa((int) immediateCorrection, str);
+    m_itoa((int) immediateCorrection, str);
     UART_SendString(str);
     UART_SendString(":\0");
-    itoa((int) totalDuration, str);
+    m_itoa((int) totalDuration, str);
     UART_SendString(str);
     UART_SendString(":\0");
-    itoa((int) newTotalDuration, str);
+    m_itoa((int) newTotalDuration, str);
     UART_SendString(str);
     UART_SendString("\n\0");
 }
